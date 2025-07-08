@@ -31,7 +31,7 @@ const SearchSection: React.FC = observer(() => {
 
   return (
     <Box>
-      <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} alignItems="stretch">
+      <Stack direction={{ xs: 'column', md: 'row' }} spacing={3} alignItems="stretch">
         <TextField
           fullWidth
           variant="outlined"
@@ -39,14 +39,29 @@ const SearchSection: React.FC = observer(() => {
           value={propertyStore.searchQuery}
           onChange={handleSearchChange}
           InputProps={{
-            startAdornment: <Search sx={{ mr: 1, color: 'text.secondary' }} />,
+            startAdornment: <Search sx={{ mr: 1, color: 'primary.main' }} />,
           }}
           sx={{ 
             flex: 1,
             '& .MuiOutlinedInput-root': {
+              height: '64px',
+              fontSize: '1.125rem',
+              fontWeight: 500,
+              '& fieldset': {
+                borderWidth: '2px',
+                borderColor: 'rgba(78, 205, 196, 0.3)',
+              },
               '&:hover fieldset': {
                 borderColor: 'primary.main',
+                borderWidth: '2px',
               },
+              '&.Mui-focused fieldset': {
+                borderColor: 'primary.main',
+                borderWidth: '2px',
+              },
+            },
+            '& .MuiInputBase-input': {
+              fontWeight: 500,
             },
           }}
         />
@@ -54,11 +69,48 @@ const SearchSection: React.FC = observer(() => {
           variant="outlined"
           startIcon={<Tune />}
           onClick={() => setShowFilters(!showFilters)}
-          sx={{ height: '56px', minWidth: '200px' }}
+          sx={{ 
+            height: '64px', 
+            minWidth: '200px',
+            borderWidth: '2px',
+            borderColor: 'primary.main',
+            color: 'primary.main',
+            fontWeight: 600,
+            fontSize: '1rem',
+            '&:hover': {
+              borderWidth: '2px',
+              backgroundColor: 'rgba(78, 205, 196, 0.1)',
+            },
+          }}
         >
           Advanced Filters
         </Button>
       </Stack>
+
+      <Box sx={{ mt: 3, textAlign: 'center' }}>
+        <Button
+          variant="contained"
+          size="large"
+          onClick={() => propertyStore.performSearch()}
+          disabled={!propertyStore.searchQuery.trim() || propertyStore.isLoading}
+          sx={{
+            py: 2,
+            px: 6,
+            fontSize: '1.125rem',
+            fontWeight: 700,
+            borderRadius: '12px',
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em',
+            minWidth: '200px',
+            background: 'linear-gradient(135deg, #4ECDC4 0%, #26A69A 100%)',
+            '&:hover': {
+              background: 'linear-gradient(135deg, #26A69A 0%, #4ECDC4 100%)',
+            },
+          }}
+        >
+          {propertyStore.isLoading ? 'Searching...' : 'Find My Money'}
+        </Button>
+      </Box>
 
       {showFilters && (
         <Accordion expanded sx={{ mt: 2, boxShadow: 1 }}>

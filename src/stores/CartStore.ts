@@ -101,14 +101,24 @@ export class CartStore {
 
   // Prepopulate address from property data
   prepopulateFromProperty = (property: UnclaimedProperty) => {
-    if (property.ownerStreet1 && property.ownerCity && property.ownerState) {
+    // Helper function to check if a field has meaningful content
+    const hasContent = (field: string | undefined | null): boolean => {
+      return field != null && field.trim().length > 0;
+    };
+
+    // We need at least city OR street1 to proceed with prepopulation
+    const hasCity = hasContent(property.ownerCity);
+    const hasStreet = hasContent(property.ownerStreet1);
+    
+    if (hasCity || hasStreet) {
       runInAction(() => {
         this.checkoutData.address = {
-          street1: property.ownerStreet1 || '',
-          street2: property.ownerStreet2 || '',
-          city: property.ownerCity || '',
-          state: property.ownerState || 'CA',
-          zipCode: property.ownerZip || ''
+          // ownerStreet1 now contains the full address from the database response
+          street1: hasContent(property.ownerStreet1) ? property.ownerStreet1!.trim() : '',
+          street2: hasContent(property.ownerStreet2) ? property.ownerStreet2!.trim() : '',
+          city: hasContent(property.ownerCity) ? property.ownerCity!.trim() : '',
+          state: hasContent(property.ownerState) ? property.ownerState!.trim() : 'CA',
+          zipCode: hasContent(property.ownerZip) ? property.ownerZip!.trim() : ''
         };
       });
     }

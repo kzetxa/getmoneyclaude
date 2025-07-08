@@ -36,21 +36,15 @@ const ResultsSection: React.FC = observer(() => {
   };
 
   if (!propertyStore.hasSearched) {
-    return (
-      <Box sx={{ textAlign: 'center', py: 4 }}>
-        <Typography variant="h6" color="text.secondary">
-          Enter a name above to search for unclaimed property
-        </Typography>
-      </Box>
-    );
+    return null; // Don't show anything if no search has been performed
   }
 
   if (propertyStore.isLoading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
         <Stack direction="row" spacing={2} alignItems="center">
-          <CircularProgress size={24} />
-          <Typography>Searching...</Typography>
+          <CircularProgress size={24} sx={{ color: '#4ECDC4' }} />
+          <Typography sx={{ color: '#4ECDC4', fontWeight: 500 }}>Searching...</Typography>
         </Stack>
       </Box>
     );
@@ -58,7 +52,15 @@ const ResultsSection: React.FC = observer(() => {
 
   if (propertyStore.error) {
     return (
-      <Alert severity="error" sx={{ mt: 2 }}>
+      <Alert 
+        severity="error" 
+        sx={{ 
+          mt: 2,
+          backgroundColor: 'rgba(244, 67, 54, 0.1)',
+          color: '#4ECDC4',
+          border: '1px solid rgba(244, 67, 54, 0.3)',
+        }}
+      >
         {propertyStore.error}
       </Alert>
     );
@@ -67,10 +69,10 @@ const ResultsSection: React.FC = observer(() => {
   if (!propertyStore.hasResults) {
     return (
       <Box sx={{ textAlign: 'center', py: 4 }}>
-        <Typography variant="h6" color="text.secondary">
+        <Typography variant="h6" sx={{ color: '#4ECDC4', fontWeight: 600 }}>
           No unclaimed property found for "{propertyStore.searchQuery}"
         </Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+        <Typography variant="body1" sx={{ mt: 1, color: 'rgba(78, 205, 196, 0.7)' }}>
           Try different spellings or check the advanced filters
         </Typography>
       </Box>
@@ -79,21 +81,58 @@ const ResultsSection: React.FC = observer(() => {
 
   return (
     <Box>
-      <Box sx={{ mb: 3 }}>
-        <Typography variant="h5" gutterBottom>
+      <Box sx={{ mb: 4, textAlign: 'center' }}>
+        <Typography variant="h4" gutterBottom sx={{ color: '#4ECDC4', fontWeight: 700 }}>
           Search Results
         </Typography>
-        <Typography variant="body1" color="text.secondary">
+        <Typography variant="h6" sx={{ color: 'rgba(78, 205, 196, 0.8)' }}>
           Found {propertyStore.searchResultsCount} result(s) for "{propertyStore.searchQuery}"
         </Typography>
+        
+        {propertyStore.usingFallbackData && (
+          <Alert 
+            severity="info" 
+            sx={{ 
+              mt: 2,
+              mb: 2,
+              backgroundColor: 'rgba(78, 205, 196, 0.1)',
+              color: '#4ECDC4',
+              border: '1px solid rgba(78, 205, 196, 0.3)',
+              borderRadius: '12px',
+              '& .MuiAlert-icon': {
+                color: '#4ECDC4'
+              }
+            }}
+          >
+            <Typography variant="body2" sx={{ fontWeight: 500 }}>
+              📊 Demo Mode: Database import in progress. Showing sample data for demonstration.
+            </Typography>
+          </Alert>
+        )}
       </Box>
 
-      <Stack spacing={2}>
+      <Stack spacing={3}>
         {propertyStore.searchResults.map((property) => {
           const isInCart = cartStore.isPropertyInCart(property.id);
           
           return (
-            <Card key={property.id} elevation={2} sx={{ '&:hover': { elevation: 4 } }}>
+            <Card 
+              key={property.id} 
+              elevation={4} 
+              sx={{ 
+                background: 'rgba(255, 255, 255, 0.95)',
+                backdropFilter: 'blur(10px)',
+                borderRadius: '16px',
+                border: '1px solid rgba(78, 205, 196, 0.2)',
+                '&:hover': { 
+                  elevation: 8,
+                  transform: 'translateY(-2px)',
+                  transition: 'all 0.3s ease',
+                  border: '1px solid rgba(78, 205, 196, 0.4)',
+                },
+                transition: 'all 0.3s ease',
+              }}
+            >
               <CardContent>
                 <Stack spacing={2}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -192,8 +231,15 @@ const ResultsSection: React.FC = observer(() => {
         })}
         </Stack>
 
-      <Box sx={{ mt: 3, p: 2, bgcolor: 'info.light', borderRadius: 1 }}>
-        <Typography variant="body2">
+      <Box sx={{ 
+        mt: 4, 
+        p: 3, 
+        background: 'rgba(78, 205, 196, 0.1)', 
+        borderRadius: '16px',
+        border: '1px solid rgba(78, 205, 196, 0.3)',
+        textAlign: 'center',
+      }}>
+        <Typography variant="body1" sx={{ color: '#4ECDC4', fontWeight: 500 }}>
           <strong>Found property that belongs to you?</strong> Contact the California State Controller's Office 
           to claim your unclaimed property. Visit their official website for claim instructions.
         </Typography>

@@ -1,52 +1,104 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { ThemeProvider, createTheme, CssBaseline } from '@mui/material';
-import { StoreProvider, usePropertyStore } from './stores/StoreContext';
+import { StoreProvider } from './stores/StoreContext';
 import MainLayout from './components/MainLayout';
-import { sampleProperties } from './utils/sampleData';
 
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#1976d2',
+      main: '#4ECDC4', // Mint green
+      light: '#80E1D9',
+      dark: '#26A69A',
+      contrastText: '#ffffff',
     },
     secondary: {
-      main: '#dc004e',
+      main: '#45515C', // Dark gray for contrast
+      light: '#6C7B89',
+      dark: '#2E3A46',
+      contrastText: '#ffffff',
     },
     background: {
-      default: '#f5f5f5',
+      default: '#4ECDC4', // Mint green background
+      paper: '#ffffff',
+    },
+    text: {
+      primary: '#2E3A46',
+      secondary: '#45515C',
     },
   },
   typography: {
+    fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
     h1: {
-      fontSize: '2.5rem',
-      fontWeight: 600,
+      fontSize: '4rem',
+      fontWeight: 900,
+      letterSpacing: '-0.02em',
+      lineHeight: 1.1,
     },
     h2: {
+      fontSize: '3rem',
+      fontWeight: 800,
+      letterSpacing: '-0.01em',
+      lineHeight: 1.2,
+    },
+    h3: {
       fontSize: '2rem',
-      fontWeight: 500,
+      fontWeight: 700,
+      letterSpacing: '-0.01em',
+    },
+    h4: {
+      fontSize: '1.5rem',
+      fontWeight: 600,
+    },
+    body1: {
+      fontSize: '1.125rem',
+      lineHeight: 1.6,
+    },
+  },
+  components: {
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          borderRadius: '12px',
+          textTransform: 'none',
+          fontWeight: 600,
+          fontSize: '1rem',
+          padding: '12px 24px',
+        },
+        contained: {
+          boxShadow: '0 4px 12px rgba(78, 205, 196, 0.3)',
+          '&:hover': {
+            boxShadow: '0 6px 16px rgba(78, 205, 196, 0.4)',
+          },
+        },
+      },
+    },
+    MuiTextField: {
+      styleOverrides: {
+        root: {
+          '& .MuiOutlinedInput-root': {
+            borderRadius: '12px',
+            backgroundColor: 'rgba(255, 255, 255, 0.9)',
+            '&:hover': {
+              backgroundColor: 'rgba(255, 255, 255, 1)',
+            },
+            '&.Mui-focused': {
+              backgroundColor: 'rgba(255, 255, 255, 1)',
+            },
+          },
+        },
+      },
     },
   },
 });
 
-const AppContent: React.FC = () => {
-  const propertyStore = usePropertyStore();
-
-  useEffect(() => {
-    // Load sample data for testing
-    propertyStore.loadPropertyData(sampleProperties);
-  }, [propertyStore]);
-
-  return <MainLayout />;
-};
-
 function App() {
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <StoreProvider>
-        <AppContent />
-      </StoreProvider>
-    </ThemeProvider>
+    <StoreProvider>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <MainLayout />
+      </ThemeProvider>
+    </StoreProvider>
   );
 }
 

@@ -55,12 +55,31 @@ const CheckoutDialog: React.FC = observer(() => {
   const [selectedProperty, setSelectedProperty] = useState<string | null>(null);
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
 
+  // Helper function to check if a property has useful address data
+  const hasUsefulAddressData = (property: any): boolean => {
+    const hasContent = (field: string | undefined | null): boolean => {
+      return field != null && field.trim().length > 0;
+    };
+    // ownerStreet1 now contains the full address from database response
+    return hasContent(property.ownerCity) || hasContent(property.ownerStreet1);
+  };
+
+  // Check if any properties have useful address data
+  const hasAnyUsefulAddressData = cartStore.sortedItems.some(item => 
+    hasUsefulAddressData(item.property)
+  );
+
   useEffect(() => {
-    // Auto-select first property for address prepopulation if cart has items
-    if (cartStore.hasItems && !selectedProperty) {
-      setSelectedProperty(cartStore.sortedItems[0].property.id);
+    // Auto-select first property with useful address data for prepopulation
+    if (cartStore.hasItems && !selectedProperty && hasAnyUsefulAddressData) {
+      const propertyWithAddress = cartStore.sortedItems.find(item => 
+        hasUsefulAddressData(item.property)
+      );
+      if (propertyWithAddress) {
+        setSelectedProperty(propertyWithAddress.property.id);
+      }
     }
-  }, [cartStore.hasItems, selectedProperty]);
+  }, [cartStore.hasItems, selectedProperty, hasAnyUsefulAddressData]);
 
   const handleClose = () => {
     cartStore.closeCheckout();
@@ -247,7 +266,7 @@ const CheckoutDialog: React.FC = observer(() => {
               Address Information
             </Typography>
 
-            {cartStore.hasItems && (
+            {cartStore.hasItems && hasAnyUsefulAddressData && (
               <Card sx={{ mb: 2, bgcolor: 'info.light' }}>
                 <CardContent>
                   <Stack direction="row" spacing={2} alignItems="center">
@@ -261,7 +280,9 @@ const CheckoutDialog: React.FC = observer(() => {
                         label="Select Property"
                         onChange={(e) => setSelectedProperty(e.target.value)}
                       >
-                        {cartStore.sortedItems.map((item) => (
+                        {cartStore.sortedItems
+                          .filter(item => hasUsefulAddressData(item.property))
+                          .map((item) => (
                           <MenuItem key={item.property.id} value={item.property.id}>
                             {item.property.ownerName} - {item.property.id}
                           </MenuItem>
@@ -269,10 +290,24 @@ const CheckoutDialog: React.FC = observer(() => {
                       </Select>
                     </FormControl>
                     <Button
-                      variant="outlined"
+                      variant="contained"
                       size="small"
                       onClick={handlePrepopulateAddress}
-                      disabled={!selectedProperty}
+                      disabled={!selectedProperty || !hasUsefulAddressData(
+                        cartStore.sortedItems.find(item => item.property.id === selectedProperty)?.property || {}
+                      )}
+                      sx={{
+                        bgcolor: '#2E3A46',
+                        color: 'white',
+                        fontWeight: 600,
+                        '&:hover': {
+                          bgcolor: '#1a252f',
+                        },
+                        '&:disabled': {
+                          bgcolor: 'rgba(46, 58, 70, 0.5)',
+                          color: 'rgba(255, 255, 255, 0.5)',
+                        }
+                      }}
                     >
                       Use This Address
                     </Button>

@@ -1,5 +1,6 @@
 import { makeAutoObservable, runInAction } from 'mobx';
 import type { UnclaimedProperty, SearchFilters, SearchResult } from '../types/Property';
+import { PropertySearchService, type DatabaseProperty, type SearchPropertyResult } from '../services/supabaseClient';
 
 export class PropertyStore {
   // Observable state
@@ -8,18 +9,70 @@ export class PropertyStore {
   searchFilters: SearchFilters = {};
   isLoading = false;
   error: string | null = null;
+  usingFallbackData = false;
   lastUpdateDate: Date | null = null;
   searchQuery = '';
+  _totalPropertyCount = 0;
   
   constructor() {
     makeAutoObservable(this);
+    this.loadTotalCount();
+  }
+
+  // Convert database property to frontend format
+  private convertDatabaseProperty(dbProperty: SearchPropertyResult): UnclaimedProperty {
+    return {
+      id: dbProperty.id,
+      propertyType: dbProperty.property_type,
+      cashReported: dbProperty.cash_reported,
+      sharesReported: dbProperty.shares_reported,
+      nameOfSecuritiesReported: dbProperty.name_of_securities_reported || '',
+      numberOfOwners: dbProperty.number_of_owners,
+      ownerName: dbProperty.owner_name,
+      // Use full address as street1 if available, otherwise try individual fields
+      ownerStreet1: dbProperty.owner_full_address || dbProperty.owner_street_1 || '',
+      ownerStreet2: dbProperty.owner_street_2 || '',
+      ownerStreet3: dbProperty.owner_street_3 || '',
+      ownerCity: dbProperty.owner_city || '',
+      ownerState: dbProperty.owner_state || '',
+      ownerZip: dbProperty.owner_zip || '',
+      ownerCountryCode: dbProperty.owner_country_code || '',
+      currentCashBalance: dbProperty.current_cash_balance,
+      numberOfPendingClaims: dbProperty.number_of_pending_claims,
+      numberOfPaidClaims: dbProperty.number_of_paid_claims,
+      holderName: dbProperty.holder_name,
+      // Use full address as street1 if available, otherwise try individual fields
+      holderStreet1: dbProperty.holder_full_address || dbProperty.holder_street_1 || '',
+      holderStreet2: dbProperty.holder_street_2 || '',
+      holderStreet3: dbProperty.holder_street_3 || '',
+      holderCity: dbProperty.holder_city || '',
+      holderState: dbProperty.holder_state || '',
+      holderZip: dbProperty.holder_zip || '',
+      cusip: dbProperty.cusip || ''
+    };
+  }
+
+  private async loadTotalCount() {
+    try {
+      const count = await PropertySearchService.getTotalPropertyCount();
+      runInAction(() => {
+        this._totalPropertyCount = count;
+      });
+    } catch (error) {
+      console.error('Error loading total count:', error);
+    }
   }
 
   // Actions
   setSearchQuery = (query: string) => {
     this.searchQuery = query;
     if (query.trim()) {
-      this.performSearch();
+      // Add small delay to reduce load during import
+      setTimeout(() => {
+        if (this.searchQuery === query) { // Only search if query hasn't changed
+          this.performSearch();
+        }
+      }, 300);
     } else {
       this.clearSearch();
     }
@@ -38,46 +91,42 @@ export class PropertyStore {
     this.error = null;
   };
 
-  performSearch = () => {
-    const startTime = Date.now();
+  performSearch = async () => {
+    if (!this.searchQuery.trim()) {
+      this.clearSearch();
+      return;
+    }
+
     this.isLoading = true;
     this.error = null;
 
     try {
-      // Simple name-based search implementation
-      const query = this.searchQuery.toLowerCase().trim();
-      const results = this.properties.filter(property => {
-        const ownerName = property.ownerName.toLowerCase();
-        
-        // Check if query matches any part of the owner name
-        const nameMatch = ownerName.includes(query);
-        
-        // Apply additional filters
-        if (this.searchFilters.minAmount && property.currentCashBalance < this.searchFilters.minAmount) {
-          return false;
-        }
-        if (this.searchFilters.maxAmount && property.currentCashBalance > this.searchFilters.maxAmount) {
-          return false;
-        }
-        if (this.searchFilters.city && !property.ownerCity?.toLowerCase().includes(this.searchFilters.city.toLowerCase())) {
-          return false;
-        }
-        if (this.searchFilters.propertyType && property.propertyType !== this.searchFilters.propertyType) {
-          return false;
-        }
-
-        return nameMatch;
+      const results = await PropertySearchService.searchProperties({
+        searchName: this.searchQuery.trim(),
+        minAmount: this.searchFilters.minAmount,
+        maxAmount: this.searchFilters.maxAmount,
+        searchCity: this.searchFilters.city,
+        searchPropertyType: this.searchFilters.propertyType,
+        limit: 50
       });
 
+      const convertedResults = results.map(result => this.convertDatabaseProperty(result));
+      
+      // Check if we're using fallback data (test data has specific IDs)
+      const isFallbackData = results.length > 0 && results.some(r => r.id.startsWith('TEST') || r.id.startsWith('DEMO'));
+
       runInAction(() => {
-        this.searchResults = results;
+        this.searchResults = convertedResults;
+        this.usingFallbackData = isFallbackData;
         this.isLoading = false;
+        this.error = null;
       });
 
     } catch (error) {
       runInAction(() => {
-        this.error = 'An error occurred while searching. Please try again.';
+        this.error = error instanceof Error ? error.message : 'An error occurred while searching. Please try again.';
         this.isLoading = false;
+        this.usingFallbackData = false;
       });
     }
   };
@@ -95,7 +144,7 @@ export class PropertyStore {
   }
 
   get totalPropertyCount() {
-    return this.properties.length;
+    return this._totalPropertyCount;
   }
 
   get hasResults() {
