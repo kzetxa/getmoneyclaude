@@ -61,20 +61,11 @@ export class PDFService {
     fillField('Claimant Name', claimantName);
 
     // Process up to 4 properties (matching the form structure)
-    const propertiesToProcess = formData.properties.slice(0, 4);
+    const propertiesToProcess = formData.properties.slice(0, 5);
 
     propertiesToProcess.forEach((property, index) => {
-      const propertyNumber = index + 1;
+      const propertyNumber = index;
       const formattedAddress = this.formatAddress(property);
-
-      // Fill numbered property fields (1), (2), (3), (4)
-      fillField(`Owner's Name (${propertyNumber})`, property.ownerName);
-      fillField(`Owner's Address as Reported to the State Controller's Office (${propertyNumber})`, formattedAddress);
-      fillField(`Amount (${propertyNumber})`, `$${property.currentCashBalance.toLocaleString()}`);
-      fillField(`Property ID (${propertyNumber})`, property.id);
-      fillField(`Type of Account (${propertyNumber})`, property.propertyType);
-      fillField(`Reported by (${propertyNumber})`, property.holderName);
-      fillField(`Reported By (${propertyNumber})`, property.holderName); // Handle capitalization variation
 
       // For the first property, also fill the general fields (without numbers)
       if (index === 0) {
@@ -84,7 +75,16 @@ export class PDFService {
         fillField(`Property ID`, property.id);
         fillField(`Type of Account`, property.propertyType);
         fillField(`Reported By`, property.holderName);
-      }
+      } else {
+		  // Fill numbered property fields (1), (2), (3), (4)
+		  fillField(`Owner's Name (${propertyNumber})`, property.ownerName);
+		  fillField(`Owner's Address as Reported to the State Controller's Office (${propertyNumber})`, formattedAddress);
+		  fillField(`Amount (${propertyNumber})`, `$${property.currentCashBalance.toLocaleString()}`);
+		  fillField(`Property ID (${propertyNumber})`, property.id);
+		  fillField(`Type of Account (${propertyNumber})`, property.propertyType);
+		  fillField(`Reported by (${propertyNumber})`, property.holderName);
+		  fillField(`Reported By (${propertyNumber})`, property.holderName); // Handle capitalization variation
+	  }
     });
 
     // Additional fields we could populate if we had the data
