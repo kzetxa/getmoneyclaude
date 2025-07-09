@@ -7,7 +7,6 @@ import {
   Paper,
   IconButton,
   Badge,
-  Stack,
 } from '@mui/material';
 import { ShoppingCart } from '@mui/icons-material';
 import { observer } from 'mobx-react-lite';

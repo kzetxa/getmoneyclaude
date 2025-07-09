@@ -14,7 +14,7 @@ import {
   Select,
   MenuItem,
 } from '@mui/material';
-import { Search, ExpandMore, Tune } from '@mui/icons-material';
+import { Search, Tune } from '@mui/icons-material';
 import { usePropertyStore } from '../stores/StoreContext';
 
 const SearchSection: React.FC = observer(() => {

@@ -1,0 +1,5 @@
+{
+  "imports": {
+    "docusign-esign": "https://esm.sh/docusign-esign@8.2.0"
+  }
+} 

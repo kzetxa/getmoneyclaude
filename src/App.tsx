@@ -1,4 +1,3 @@
-import React from 'react';
 import { ThemeProvider, createTheme, CssBaseline } from '@mui/material';
 import { StoreProvider } from './stores/StoreContext';
 import MainLayout from './components/MainLayout';

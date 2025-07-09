@@ -1,6 +1,8 @@
-import { PDFDocument, PDFForm, PDFTextField } from 'pdf-lib';
+import { PDFDocument, PDFForm } from 'pdf-lib';
+import { Buffer } from 'buffer';
 import type { UnclaimedProperty } from '../types/Property';
 import type { CheckoutData } from '../stores/CartStore';
+// import { supabase } from './supabaseClient';
 
 export interface FormData {
   properties: UnclaimedProperty[];
@@ -115,6 +117,43 @@ export class PDFService {
     } catch (error) {
       console.error('Error generating Standard Investigator Agreement:', error);
       throw new Error(`Failed to generate PDF: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }
+
+  static async sendForSignature(formData: FormData): Promise<any> {
+    try {
+      console.log('Generating PDF for signing...');
+      const pdfBytes = await this.generateStandardInvestigatorAgreement(formData);
+      console.log('PDF generated successfully.');
+
+      // Convert Uint8Array to Base64 string
+      const pdfBase64 = Buffer.from(pdfBytes).toString('base64');
+
+      console.log('Invoking Netlify function to send for signature...');
+      
+      const response = await fetch('/.netlify/functions/docusign-send-agreement', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          pdfBase64,
+          claimantData: formData.claimantData,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(`Failed to send for signature: ${errorData.error || response.statusText}`);
+      }
+      
+      const data = await response.json();
+      console.log('Successfully sent for signature via Netlify function.', data);
+      return data;
+
+    } catch (error) {
+      console.error('Error in sendForSignature:', error);
+      throw new Error(`Failed to send for signature: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 

@@ -18,7 +18,6 @@ import {
   IconButton,
   Divider,
   TextField,
-  Grid,
   Stack,
   Chip,
   Card,
@@ -33,8 +32,6 @@ import {
   Close,
   Delete,
   AttachMoney,
-  Person,
-  LocationOn,
   CheckCircle,
 } from '@mui/icons-material';
 import { useCartStore } from '../stores/StoreContext';
@@ -53,7 +50,7 @@ const US_STATES = [
 const CheckoutDialog: React.FC = observer(() => {
   const cartStore = useCartStore();
   const [selectedProperty, setSelectedProperty] = useState<string | null>(null);
-  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Helper function to check if a property has useful address data
   const hasUsefulAddressData = (property: any): boolean => {
@@ -117,7 +114,7 @@ const CheckoutDialog: React.FC = observer(() => {
   };
 
   const handleSubmit = async () => {
-    setIsGeneratingPDF(true);
+    setIsSubmitting(true);
     try {
       // Prepare form data
       const formData: FormData = {
@@ -125,31 +122,24 @@ const CheckoutDialog: React.FC = observer(() => {
         claimantData: cartStore.checkoutData
       };
 
-      console.log('Generating PDF with data:', formData);
+      console.log('Sending for signature with data:', formData);
 
-      // Generate the Standard Investigator Agreement PDF
-      const pdfBytes = await PDFService.generateStandardInvestigatorAgreement(formData);
-      
-      // Create filename with timestamp
-      const timestamp = new Date().toISOString().split('T')[0];
-      const filename = `Standard_Investigator_Agreement_${timestamp}.pdf`;
-      
-      // Download the PDF
-      await PDFService.downloadPDF(pdfBytes, filename);
+      // Send the agreement for signature via DocuSign
+      await PDFService.sendForSignature(formData);
       
       // Success feedback
-      alert(`PDF generated successfully! Check your downloads for: ${filename}`);
+      alert('Agreement sent for signature! Please check your email.');
       
-      // Clean up after successful generation
+      // Clean up after successful sending
       cartStore.closeCheckout();
       cartStore.clearCart();
       cartStore.resetCheckoutData();
       
     } catch (error) {
-      console.error('Error generating PDF:', error);
-      alert(`Error generating PDF: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      console.error('Error sending for signature:', error);
+      alert(`Error sending for signature: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
-      setIsGeneratingPDF(false);
+      setIsSubmitting(false);
     }
   };
 
@@ -517,10 +507,10 @@ const CheckoutDialog: React.FC = observer(() => {
             onClick={handleSubmit}
             variant="contained"
             color="success"
-            disabled={!cartStore.canProceedToNextStep || isGeneratingPDF}
-            startIcon={isGeneratingPDF ? <CircularProgress size={20} color="inherit" /> : <CheckCircle />}
+            disabled={!cartStore.canProceedToNextStep || isSubmitting}
+            startIcon={isSubmitting ? <CircularProgress size={20} color="inherit" /> : <CheckCircle />}
           >
-            {isGeneratingPDF ? 'Generating PDF...' : 'Generate Claim Forms'}
+            {isSubmitting ? 'Submitting...' : 'Submit for Signature'}
           </Button>
         )}
       </DialogActions>

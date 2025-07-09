@@ -11,14 +11,12 @@ import {
   Alert,
   Divider,
   Button,
-  IconButton,
 } from '@mui/material';
 import { 
   AttachMoney, 
   Business, 
   LocationOn, 
   ShoppingCart,
-  CheckCircle,
   RemoveCircle 
 } from '@mui/icons-material';
 import { usePropertyStore, useCartStore } from '../stores/StoreContext';

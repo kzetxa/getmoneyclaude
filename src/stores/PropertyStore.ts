@@ -1,6 +1,6 @@
 import { makeAutoObservable, runInAction } from 'mobx';
-import type { UnclaimedProperty, SearchFilters, SearchResult } from '../types/Property';
-import { PropertySearchService, type DatabaseProperty, type SearchPropertyResult } from '../services/supabaseClient';
+import { PropertySearchService, type SearchPropertyResult } from '../services/supabaseClient';
+import type { SearchFilters, UnclaimedProperty } from '../types/Property';
 
 export class PropertyStore {
   // Observable state
