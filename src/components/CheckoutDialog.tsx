@@ -1,521 +1,570 @@
 import React, { useState, useEffect } from 'react';
 import { observer } from 'mobx-react-lite';
 import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  Stepper,
-  Step,
-  StepLabel,
-  Box,
-  Typography,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemSecondaryAction,
-  IconButton,
-  Divider,
-  TextField,
-  Stack,
-  Chip,
-  Card,
-  CardContent,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  CircularProgress,
+	Dialog,
+	DialogTitle,
+	DialogContent,
+	DialogActions,
+	Button,
+	Stepper,
+	Step,
+	StepLabel,
+	Box,
+	Typography,
+	List,
+	ListItem,
+	ListItemText,
+	ListItemSecondaryAction,
+	IconButton,
+	Divider,
+	TextField,
+	Stack,
+	Chip,
+	Card,
+	CardContent,
+	FormControl,
+	InputLabel,
+	Select,
+	MenuItem,
+	CircularProgress,
 } from '@mui/material';
 import {
-  Close,
-  Delete,
-  AttachMoney,
-  CheckCircle,
+	Close,
+	Delete,
+	AttachMoney,
+	CheckCircle,
 } from '@mui/icons-material';
 import { useCartStore } from '../stores/StoreContext';
 import { PDFService, type FormData } from '../services/pdfService';
+import { useNavigate } from "react-router-dom";
 
 const steps = ['Review Cart', 'Enter Details', 'Confirmation'];
 
 const US_STATES = [
-  'AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA',
-  'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 'MD',
-  'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH', 'NJ',
-  'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC',
-  'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY'
+	'AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA',
+	'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 'MD',
+	'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH', 'NJ',
+	'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC',
+	'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY'
 ];
 
 const CheckoutDialog: React.FC = observer(() => {
-  const cartStore = useCartStore();
-  const [selectedProperty, setSelectedProperty] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+	const cartStore = useCartStore();
+	const navigate = useNavigate();
+	const [selectedProperty, setSelectedProperty] = useState<string | null>(null);
+	const [isSubmitting, setIsSubmitting] = useState(false);
+	const [signingUrl, setSigningUrl] = useState<string | null>(null);
+	const [isSignatureDialogOpen, setIsSignatureDialogOpen] = useState(false);
 
-  // Helper function to check if a property has useful address data
-  const hasUsefulAddressData = (property: any): boolean => {
-    const hasContent = (field: string | undefined | null): boolean => {
-      return field != null && field.trim().length > 0;
-    };
-    // ownerStreet1 now contains the full address from database response
-    return hasContent(property.ownerCity) || hasContent(property.ownerStreet1);
-  };
+	useEffect(() => {
+		const handleMessage = (event: MessageEvent) => {
+			// Check for message from our docusign return page
+			if (event.data === 'docusign-signing-complete') {
+				console.log('Signing complete message received.');
+				setIsSignatureDialogOpen(false);
+				setSigningUrl(null);
+				cartStore.closeCheckout();
+				cartStore.clearCart();
+				cartStore.resetCheckoutData();
+				navigate('/thank-you');
+			}
+		};
 
-  // Check if any properties have useful address data
-  const hasAnyUsefulAddressData = cartStore.sortedItems.some(item => 
-    hasUsefulAddressData(item.property)
-  );
+		window.addEventListener('message', handleMessage);
+		return () => {
+			window.removeEventListener('message', handleMessage);
+		};
+	}, [cartStore, navigate]);
 
-  useEffect(() => {
-    // Auto-select first property with useful address data for prepopulation
-    if (cartStore.hasItems && !selectedProperty && hasAnyUsefulAddressData) {
-      const propertyWithAddress = cartStore.sortedItems.find(item => 
-        hasUsefulAddressData(item.property)
-      );
-      if (propertyWithAddress) {
-        setSelectedProperty(propertyWithAddress.property.id);
-      }
-    }
-  }, [cartStore.hasItems, selectedProperty, hasAnyUsefulAddressData]);
+	// Helper function to check if a property has useful address data
+	const hasUsefulAddressData = (property: any): boolean => {
+		const hasContent = (field: string | undefined | null): boolean => {
+			return field != null && field.trim().length > 0;
+		};
+		// ownerStreet1 now contains the full address from database response
+		return hasContent(property.ownerCity) || hasContent(property.ownerStreet1);
+	};
 
-  const handleClose = () => {
-    cartStore.closeCheckout();
-  };
+	// Check if any properties have useful address data
+	const hasAnyUsefulAddressData = cartStore.sortedItems.some(item =>
+		hasUsefulAddressData(item.property)
+	);
 
-  const handleNext = () => {
-    if (cartStore.checkoutStep < 3) {
-      cartStore.setCheckoutStep(cartStore.checkoutStep + 1);
-    }
-  };
+	useEffect(() => {
+		// Auto-select first property with useful address data for prepopulation
+		if (cartStore.hasItems && !selectedProperty && hasAnyUsefulAddressData) {
+			const propertyWithAddress = cartStore.sortedItems.find(item =>
+				hasUsefulAddressData(item.property)
+			);
+			if (propertyWithAddress) {
+				setSelectedProperty(propertyWithAddress.property.id);
+			}
+		}
+	}, [cartStore.hasItems, selectedProperty, hasAnyUsefulAddressData]);
 
-  const handleBack = () => {
-    if (cartStore.checkoutStep > 1) {
-      cartStore.setCheckoutStep(cartStore.checkoutStep - 1);
-    }
-  };
+	const handleClose = () => {
+		cartStore.closeCheckout();
+	};
 
-  const handlePrepopulateAddress = () => {
-    if (selectedProperty) {
-      const property = cartStore.sortedItems.find(item => item.property.id === selectedProperty)?.property;
-      if (property) {
-        cartStore.prepopulateFromProperty(property);
-      }
-    }
-  };
+	const handleNext = () => {
+		if (cartStore.checkoutStep < 3) {
+			cartStore.setCheckoutStep(cartStore.checkoutStep + 1);
+		}
+	};
 
-  const handleInspectFields = async () => {
-    try {
-      const fields = await PDFService.inspectFormFields('/forms/FORM_standard_investigator_agreement.pdf');
-      console.log('PDF Form Fields:', fields);
-      alert(`Found ${fields.length} fields. Check console for details.`);
-    } catch (error) {
-      console.error('Error inspecting form fields:', error);
-    }
-  };
+	const handleBack = () => {
+		if (cartStore.checkoutStep > 1) {
+			cartStore.setCheckoutStep(cartStore.checkoutStep - 1);
+		}
+	};
 
-  const handleSubmit = async () => {
-    setIsSubmitting(true);
-    try {
-      // Prepare form data
-      const formData: FormData = {
-        properties: cartStore.sortedItems.map(item => item.property),
-        claimantData: cartStore.checkoutData
-      };
+	const handlePrepopulateAddress = () => {
+		if (selectedProperty) {
+			const property = cartStore.sortedItems.find(item => item.property.id === selectedProperty)?.property;
+			if (property) {
+				cartStore.prepopulateFromProperty(property);
+			}
+		}
+	};
 
-      console.log('Sending for signature with data:', formData);
+	const handleSubmit = async () => {
+		setIsSubmitting(true);
+		try {
+			// Prepare form data
+			const formData: FormData = {
+				properties: cartStore.sortedItems.map(item => item.property),
+				// This now expects 'ssn' to be part of the checkoutData from the store
+				claimantData: cartStore.checkoutData
+			};
 
-      // Send the agreement for signature via DocuSign
-      await PDFService.sendForSignature(formData);
-      
-      // Success feedback
-      alert('Agreement sent for signature! Please check your email.');
-      
-      // Clean up after successful sending
-      cartStore.closeCheckout();
-      cartStore.clearCart();
-      cartStore.resetCheckoutData();
-      
-    } catch (error) {
-      console.error('Error sending for signature:', error);
-      alert(`Error sending for signature: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+			console.log('Sending for signature with data:', formData);
 
-  const renderStepContent = () => {
-    switch (cartStore.checkoutStep) {
-      case 1:
-        return (
-          <Box>
-            <Typography variant="h6" gutterBottom>
-              Review Your Selected Properties
-            </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-              These properties will be included in your claim forms
-            </Typography>
-            
-            <List>
-              {cartStore.sortedItems.map((item) => (
-                <ListItem key={item.property.id} divider>
-                  <ListItemText
-                    primary={item.property.ownerName}
-                    secondary={
-                      <Stack spacing={0.5}>
-                        <Typography variant="body2" color="text.secondary">
-                          {item.property.propertyType}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          Property ID: {item.property.id}
-                        </Typography>
-                        <Chip
-                          icon={<AttachMoney />}
-                          label={`$${item.property.currentCashBalance.toLocaleString()}`}
-                          size="small"
-                          color="success"
-                          variant="outlined"
-                        />
-                      </Stack>
-                    }
-                  />
-                  <ListItemSecondaryAction>
-                    <IconButton
-                      edge="end"
-                      onClick={() => cartStore.removeFromCart(item.property.id)}
-                      color="error"
-                    >
-                      <Delete />
-                    </IconButton>
-                  </ListItemSecondaryAction>
-                </ListItem>
-              ))}
-            </List>
+			// Send the agreement for signature and get the redirect URL
+			const redirectUrl = await PDFService.sendForSignature(formData);
 
-            <Divider sx={{ my: 2 }} />
-            
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <Typography variant="h6">
-                Total Properties: {cartStore.itemCount}
-              </Typography>
-                              <Chip
-                  icon={<AttachMoney />}
-                  label={`Total: $${cartStore.totalAmount.toLocaleString()}`}
-                  color="success"
-                  size="medium"
-                />
-            </Box>
-          </Box>
-        );
+			console.log('Received signing URL:', redirectUrl);
 
-      case 2:
-        return (
-          <Box>
-            <Typography variant="h6" gutterBottom>
-              Enter Your Information
-            </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-              This information will be used to generate your claim forms
-            </Typography>
+			// Set the URL and open the signature dialog
+			setSigningUrl(redirectUrl);
+			setIsSignatureDialogOpen(true);
 
-                         <Stack spacing={2}>
-               <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-                 <TextField
-                   fullWidth
-                   label="First Name"
-                   value={cartStore.checkoutData.firstName}
-                   onChange={(e) => cartStore.updateCheckoutData({ firstName: e.target.value })}
-                   required
-                 />
-                 <TextField
-                   fullWidth
-                   label="Last Name"
-                   value={cartStore.checkoutData.lastName}
-                   onChange={(e) => cartStore.updateCheckoutData({ lastName: e.target.value })}
-                   required
-                 />
-               </Stack>
-               <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-                 <TextField
-                   fullWidth
-                   label="Email"
-                   type="email"
-                   value={cartStore.checkoutData.email}
-                   onChange={(e) => cartStore.updateCheckoutData({ email: e.target.value })}
-                   required
-                 />
-                 <TextField
-                   fullWidth
-                   label="Phone Number"
-                   value={cartStore.checkoutData.phone}
-                   onChange={(e) => cartStore.updateCheckoutData({ phone: e.target.value })}
-                 />
-               </Stack>
-             </Stack>
+		} catch (error) {
+			console.error('Error sending for signature:', error);
+			alert(`Error sending for signature: ${error instanceof Error ? error.message : 'Unknown error'}`);
+		} finally {
+			setIsSubmitting(false);
+		}
+	};
 
-            <Typography variant="h6" sx={{ mt: 3, mb: 2 }}>
-              Address Information
-            </Typography>
+	const renderStepContent = () => {
+		switch (cartStore.checkoutStep) {
+			case 1:
+				return (
+					<Box>
+						<Typography variant="h6" gutterBottom>
+							Review Your Selected Properties
+						</Typography>
+						<Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+							These properties will be included in your claim forms
+						</Typography>
 
-            {cartStore.hasItems && hasAnyUsefulAddressData && (
-              <Card sx={{ mb: 2, bgcolor: 'info.light' }}>
-                <CardContent>
-                  <Stack direction="row" spacing={2} alignItems="center">
-                    <Typography variant="body2" sx={{ flex: 1 }}>
-                      Would you like to use an address from your property records?
-                    </Typography>
-                    <FormControl size="small" sx={{ minWidth: 200 }}>
-                      <InputLabel>Select Property</InputLabel>
-                      <Select
-                        value={selectedProperty || ''}
-                        label="Select Property"
-                        onChange={(e) => setSelectedProperty(e.target.value)}
-                      >
-                        {cartStore.sortedItems
-                          .filter(item => hasUsefulAddressData(item.property))
-                          .map((item) => (
-                          <MenuItem key={item.property.id} value={item.property.id}>
-                            {item.property.ownerName} - {item.property.id}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-                    <Button
-                      variant="contained"
-                      size="small"
-                      onClick={handlePrepopulateAddress}
-                      disabled={!selectedProperty || !hasUsefulAddressData(
-                        cartStore.sortedItems.find(item => item.property.id === selectedProperty)?.property || {}
-                      )}
-                      sx={{
-                        bgcolor: '#2E3A46',
-                        color: 'white',
-                        fontWeight: 600,
-                        '&:hover': {
-                          bgcolor: '#1a252f',
-                        },
-                        '&:disabled': {
-                          bgcolor: 'rgba(46, 58, 70, 0.5)',
-                          color: 'rgba(255, 255, 255, 0.5)',
-                        }
-                      }}
-                    >
-                      Use This Address
-                    </Button>
-                  </Stack>
-                </CardContent>
-              </Card>
-            )}
+						<List>
+							{cartStore.sortedItems.map((item) => (
+								<ListItem key={item.property.id} divider>
+									<ListItemText
+										primary={item.property.ownerName}
+										secondary={
+											<Stack spacing={0.5}>
+												<Typography variant="body2" color="text.secondary">
+													{item.property.propertyType}
+												</Typography>
+												<Typography variant="body2" color="text.secondary">
+													Property ID: {item.property.id}
+												</Typography>
+												<Chip
+													icon={<AttachMoney />}
+													label={`$${item.property.currentCashBalance.toLocaleString()}`}
+													size="small"
+													color="success"
+													variant="outlined"
+												/>
+											</Stack>
+										}
+									/>
+									<ListItemSecondaryAction>
+										<IconButton
+											edge="end"
+											onClick={() => cartStore.removeFromCart(item.property.id)}
+											color="error"
+										>
+											<Delete />
+										</IconButton>
+									</ListItemSecondaryAction>
+								</ListItem>
+							))}
+						</List>
 
-                         <Stack spacing={2}>
-               <TextField
-                 fullWidth
-                 label="Street Address"
-                 value={cartStore.checkoutData.address.street1}
-                 onChange={(e) => cartStore.updateCheckoutAddress({ street1: e.target.value })}
-                 required
-               />
-               <TextField
-                 fullWidth
-                 label="Street Address 2 (Optional)"
-                 value={cartStore.checkoutData.address.street2}
-                 onChange={(e) => cartStore.updateCheckoutAddress({ street2: e.target.value })}
-               />
-               <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-                 <TextField
-                   fullWidth
-                   label="City"
-                   value={cartStore.checkoutData.address.city}
-                   onChange={(e) => cartStore.updateCheckoutAddress({ city: e.target.value })}
-                   required
-                 />
-                 <FormControl fullWidth required sx={{ minWidth: 120 }}>
-                   <InputLabel>State</InputLabel>
-                   <Select
-                     value={cartStore.checkoutData.address.state}
-                     label="State"
-                     onChange={(e) => cartStore.updateCheckoutAddress({ state: e.target.value })}
-                   >
-                     {US_STATES.map((state) => (
-                       <MenuItem key={state} value={state}>
-                         {state}
-                       </MenuItem>
-                     ))}
-                   </Select>
-                 </FormControl>
-                 <TextField
-                   fullWidth
-                   label="ZIP Code"
-                   value={cartStore.checkoutData.address.zipCode}
-                   onChange={(e) => cartStore.updateCheckoutAddress({ zipCode: e.target.value })}
-                   required
-                   sx={{ minWidth: 120 }}
-                 />
-               </Stack>
-               <TextField
-                 fullWidth
-                 label="Additional Notes (Optional)"
-                 multiline
-                 rows={3}
-                 value={cartStore.checkoutData.notes}
-                 onChange={(e) => cartStore.updateCheckoutData({ notes: e.target.value })}
-                 placeholder="Any additional information that might help with your claim..."
-               />
-             </Stack>
-          </Box>
-        );
+						<Divider sx={{ my: 2 }} />
 
-      case 3:
-        return (
-          <Box>
-            <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 3 }}>
-              <CheckCircle color="success" />
-              <Typography variant="h6">
-                Review and Confirm
-              </Typography>
-            </Stack>
+						<Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+							<Typography variant="h6">
+								Total Properties: {cartStore.itemCount}
+							</Typography>
+							<Chip
+								icon={<AttachMoney />}
+								label={`Total: $${cartStore.totalAmount.toLocaleString()}`}
+								color="success"
+								size="medium"
+							/>
+						</Box>
+					</Box>
+				);
 
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-              Please review your information before generating the claim forms
-            </Typography>
+			case 2:
+				return (
+					<Box>
+						<Typography variant="h6" gutterBottom>
+							Enter Your Information
+						</Typography>
+						<Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+							This information will be used to generate your claim forms
+						</Typography>
 
-            <Card sx={{ mb: 2 }}>
-              <CardContent>
-                <Typography variant="h6" gutterBottom>
-                  Personal Information
-                </Typography>
-                <Stack spacing={1}>
-                  <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-                    <Box sx={{ flex: 1 }}>
-                      <Typography variant="body2" color="text.secondary">Name:</Typography>
-                      <Typography>{cartStore.checkoutData.firstName} {cartStore.checkoutData.lastName}</Typography>
-                    </Box>
-                    <Box sx={{ flex: 1 }}>
-                      <Typography variant="body2" color="text.secondary">Email:</Typography>
-                      <Typography>{cartStore.checkoutData.email}</Typography>
-                    </Box>
-                  </Stack>
-                  {cartStore.checkoutData.phone && (
-                    <Box>
-                      <Typography variant="body2" color="text.secondary">Phone:</Typography>
-                      <Typography>{cartStore.checkoutData.phone}</Typography>
-                    </Box>
-                  )}
-                </Stack>
-              </CardContent>
-            </Card>
+						<Stack spacing={2}>
+							<Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+								<TextField
+									fullWidth
+									label="First Name"
+									value={cartStore.checkoutData.firstName}
+									onChange={(e) => cartStore.updateCheckoutData({ firstName: e.target.value })}
+									required
+								/>
+								<TextField
+									fullWidth
+									label="Last Name"
+									value={cartStore.checkoutData.lastName}
+									onChange={(e) => cartStore.updateCheckoutData({ lastName: e.target.value })}
+									required
+								/>
+							</Stack>
+							<Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+								<TextField
+									fullWidth
+									label="Email"
+									type="email"
+									value={cartStore.checkoutData.email}
+									onChange={(e) => cartStore.updateCheckoutData({ email: e.target.value })}
+									required
+								/>
+								<TextField
+									fullWidth
+									label="Phone Number"
+									value={cartStore.checkoutData.phone}
+									onChange={(e) => cartStore.updateCheckoutData({ phone: e.target.value })}
+								/>
+							</Stack>
+							<TextField
+								fullWidth
+								label="Social Security Number (SSN)"
+								value={cartStore.checkoutData.ssn}
+								onChange={(e) => cartStore.updateCheckoutData({ ssn: e.target.value })}
+								required
+								placeholder="XXX-XX-XXXX"
+							/>
+						</Stack>
 
-            <Card sx={{ mb: 2 }}>
-              <CardContent>
-                <Typography variant="h6" gutterBottom>
-                  Address
-                </Typography>
-                <Typography>
-                  {cartStore.checkoutData.address.street1}
-                  {cartStore.checkoutData.address.street2 && <><br />{cartStore.checkoutData.address.street2}</>}
-                  <br />
-                  {cartStore.checkoutData.address.city}, {cartStore.checkoutData.address.state} {cartStore.checkoutData.address.zipCode}
-                </Typography>
-              </CardContent>
-            </Card>
+						<Typography variant="h6" sx={{ mt: 3, mb: 2 }}>
+							Address Information
+						</Typography>
 
-            <Card>
-              <CardContent>
-                <Typography variant="h6" gutterBottom>
-                  Properties ({cartStore.itemCount})
-                </Typography>
-                {cartStore.sortedItems.map((item) => (
-                  <Box key={item.property.id} sx={{ mb: 1 }}>
-                    <Typography variant="body2">
-                      <strong>{item.property.ownerName}</strong> - ${item.property.currentCashBalance.toLocaleString()} 
-                      (ID: {item.property.id})
-                    </Typography>
-                  </Box>
-                ))}
-                <Divider sx={{ my: 1 }} />
-                <Typography variant="h6">
-                  Total Amount: ${cartStore.totalAmount.toLocaleString()}
-                </Typography>
-              </CardContent>
-            </Card>
-          </Box>
-        );
+						{cartStore.hasItems && hasAnyUsefulAddressData && (
+							<Card sx={{ mb: 2, bgcolor: 'info.light' }}>
+								<CardContent>
+									<Stack direction="row" spacing={2} alignItems="center">
+										<Typography variant="body2" sx={{ flex: 1 }}>
+											Would you like to use an address from your property records?
+										</Typography>
+										<FormControl size="small" sx={{ minWidth: 200 }}>
+											<InputLabel>Select Property</InputLabel>
+											<Select
+												value={selectedProperty || ''}
+												label="Select Property"
+												onChange={(e) => setSelectedProperty(e.target.value)}
+											>
+												{cartStore.sortedItems
+													.filter(item => hasUsefulAddressData(item.property))
+													.map((item) => (
+														<MenuItem key={item.property.id} value={item.property.id}>
+															{item.property.ownerName} - {item.property.id}
+														</MenuItem>
+													))}
+											</Select>
+										</FormControl>
+										<Button
+											variant="contained"
+											size="small"
+											onClick={handlePrepopulateAddress}
+											disabled={!selectedProperty || !hasUsefulAddressData(
+												cartStore.sortedItems.find(item => item.property.id === selectedProperty)?.property || {}
+											)}
+											sx={{
+												bgcolor: '#2E3A46',
+												color: 'white',
+												fontWeight: 600,
+												'&:hover': {
+													bgcolor: '#1a252f',
+												},
+												'&:disabled': {
+													bgcolor: 'rgba(46, 58, 70, 0.5)',
+													color: 'rgba(255, 255, 255, 0.5)',
+												}
+											}}
+										>
+											Use This Address
+										</Button>
+									</Stack>
+								</CardContent>
+							</Card>
+						)}
 
-      default:
-        return null;
-    }
-  };
+						<Stack spacing={2}>
+							<TextField
+								fullWidth
+								label="Street Address"
+								value={cartStore.checkoutData.address.street1}
+								onChange={(e) => cartStore.updateCheckoutAddress({ street1: e.target.value })}
+								required
+							/>
+							<TextField
+								fullWidth
+								label="Street Address 2 (Optional)"
+								value={cartStore.checkoutData.address.street2}
+								onChange={(e) => cartStore.updateCheckoutAddress({ street2: e.target.value })}
+							/>
+							<Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+								<TextField
+									fullWidth
+									label="City"
+									value={cartStore.checkoutData.address.city}
+									onChange={(e) => cartStore.updateCheckoutAddress({ city: e.target.value })}
+									required
+								/>
+								<FormControl fullWidth required sx={{ minWidth: 120 }}>
+									<InputLabel>State</InputLabel>
+									<Select
+										value={cartStore.checkoutData.address.state}
+										label="State"
+										onChange={(e) => cartStore.updateCheckoutAddress({ state: e.target.value })}
+									>
+										{US_STATES.map((state) => (
+											<MenuItem key={state} value={state}>
+												{state}
+											</MenuItem>
+										))}
+									</Select>
+								</FormControl>
+								<TextField
+									fullWidth
+									label="ZIP Code"
+									value={cartStore.checkoutData.address.zipCode}
+									onChange={(e) => cartStore.updateCheckoutAddress({ zipCode: e.target.value })}
+									required
+									sx={{ minWidth: 120 }}
+								/>
+							</Stack>
+							<TextField
+								fullWidth
+								label="Additional Notes (Optional)"
+								multiline
+								rows={3}
+								value={cartStore.checkoutData.notes}
+								onChange={(e) => cartStore.updateCheckoutData({ notes: e.target.value })}
+								placeholder="Any additional information that might help with your claim..."
+							/>
+						</Stack>
+					</Box>
+				);
 
-  return (
-    <Dialog
-      open={cartStore.isCheckoutOpen}
-      onClose={handleClose}
-      maxWidth="md"
-      fullWidth
-      PaperProps={{
-        sx: { minHeight: '60vh' }
-      }}
-    >
-      <DialogTitle>
-        <Stack direction="row" justifyContent="space-between" alignItems="center">
-          <Typography variant="h5">Checkout</Typography>
-          <IconButton onClick={handleClose}>
-            <Close />
-          </IconButton>
-        </Stack>
-      </DialogTitle>
+			case 3:
+				return (
+					<Box>
+						<Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 3 }}>
+							<CheckCircle color="success" />
+							<Typography variant="h6">
+								Review and Confirm
+							</Typography>
+						</Stack>
 
-      <DialogContent>
-        <Stepper activeStep={cartStore.checkoutStep - 1} sx={{ mb: 3 }}>
-          {steps.map((label) => (
-            <Step key={label}>
-              <StepLabel>{label}</StepLabel>
-            </Step>
-          ))}
-        </Stepper>
+						<Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+							Please review your information before generating the claim forms
+						</Typography>
 
-        {renderStepContent()}
-      </DialogContent>
+						<Card sx={{ mb: 2 }}>
+							<CardContent>
+								<Typography variant="h6" gutterBottom>
+									Personal Information
+								</Typography>
+								<Stack spacing={1}>
+									<Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+										<Box sx={{ flex: 1 }}>
+											<Typography variant="body2" color="text.secondary">Name:</Typography>
+											<Typography>{cartStore.checkoutData.firstName} {cartStore.checkoutData.lastName}</Typography>
+										</Box>
+										<Box sx={{ flex: 1 }}>
+											<Typography variant="body2" color="text.secondary">Email:</Typography>
+											<Typography>{cartStore.checkoutData.email}</Typography>
+										</Box>
+									</Stack>
+									{cartStore.checkoutData.phone && (
+										<Box>
+											<Typography variant="body2" color="text.secondary">Phone:</Typography>
+											<Typography>{cartStore.checkoutData.phone}</Typography>
+										</Box>
+									)}
+								</Stack>
+							</CardContent>
+						</Card>
 
-      <DialogActions sx={{ p: 3 }}>
-        <Button onClick={handleClose} color="inherit">
-          Cancel
-        </Button>
-        
-        {/* Development helper button - remove in production */}
-        {process.env.NODE_ENV === 'development' && cartStore.checkoutStep === 3 && (
-          <Button onClick={handleInspectFields} color="info" variant="outlined" size="small">
-            Debug: Inspect PDF Fields
-          </Button>
-        )}
-        
-        <Box sx={{ flex: 1 }} />
-        {cartStore.checkoutStep > 1 && (
-          <Button onClick={handleBack} color="inherit">
-            Back
-          </Button>
-        )}
-        {cartStore.checkoutStep < 3 ? (
-          <Button
-            onClick={handleNext}
-            variant="contained"
-            disabled={!cartStore.canProceedToNextStep}
-          >
-            Next
-          </Button>
-        ) : (
-          <Button
-            onClick={handleSubmit}
-            variant="contained"
-            color="success"
-            disabled={!cartStore.canProceedToNextStep || isSubmitting}
-            startIcon={isSubmitting ? <CircularProgress size={20} color="inherit" /> : <CheckCircle />}
-          >
-            {isSubmitting ? 'Submitting...' : 'Submit for Signature'}
-          </Button>
-        )}
-      </DialogActions>
-    </Dialog>
-  );
+						<Card sx={{ mb: 2 }}>
+							<CardContent>
+								<Typography variant="h6" gutterBottom>
+									Address
+								</Typography>
+								<Typography>
+									{cartStore.checkoutData.address.street1}
+									{cartStore.checkoutData.address.street2 && <><br />{cartStore.checkoutData.address.street2}</>}
+									<br />
+									{cartStore.checkoutData.address.city}, {cartStore.checkoutData.address.state} {cartStore.checkoutData.address.zipCode}
+								</Typography>
+							</CardContent>
+						</Card>
+
+						<Card>
+							<CardContent>
+								<Typography variant="h6" gutterBottom>
+									Properties ({cartStore.itemCount})
+								</Typography>
+								{cartStore.sortedItems.map((item) => (
+									<Box key={item.property.id} sx={{ mb: 1 }}>
+										<Typography variant="body2">
+											<strong>{item.property.ownerName}</strong> - ${item.property.currentCashBalance.toLocaleString()}
+											(ID: {item.property.id})
+										</Typography>
+									</Box>
+								))}
+								<Divider sx={{ my: 1 }} />
+								<Typography variant="h6">
+									Total Amount: ${cartStore.totalAmount.toLocaleString()}
+								</Typography>
+							</CardContent>
+						</Card>
+					</Box>
+				);
+
+			default:
+				return null;
+		}
+	};
+
+	return (
+		<>
+		<Dialog
+			open={cartStore.isCheckoutOpen && !isSignatureDialogOpen}
+			onClose={handleClose}
+			maxWidth="md"
+			fullWidth
+			PaperProps={{
+				sx: { minHeight: '60vh' }
+			}}
+		>
+			<DialogTitle>
+				<Stack direction="row" justifyContent="space-between" alignItems="center">
+					<Typography variant="h5">Checkout</Typography>
+					<IconButton onClick={handleClose}>
+						<Close />
+					</IconButton>
+				</Stack>
+			</DialogTitle>
+
+			<DialogContent>
+				<Stepper activeStep={cartStore.checkoutStep - 1} sx={{ mb: 3 }}>
+					{steps.map((label) => (
+						<Step key={label}>
+							<StepLabel>{label}</StepLabel>
+						</Step>
+					))}
+				</Stepper>
+
+				{renderStepContent()}
+			</DialogContent>
+
+			<DialogActions sx={{ p: 3 }}>
+				<Button onClick={handleClose} color="inherit">
+					Cancel
+				</Button>
+
+				<Box sx={{ flex: 1 }} />
+				{cartStore.checkoutStep > 1 && (
+					<Button onClick={handleBack} color="inherit">
+						Back
+					</Button>
+				)}
+				{cartStore.checkoutStep < 3 ? (
+					<Button
+						onClick={handleNext}
+						variant="contained"
+						disabled={!cartStore.canProceedToNextStep}
+					>
+						Next
+					</Button>
+				) : (
+					<Button
+						onClick={handleSubmit}
+						variant="contained"
+						color="success"
+						disabled={!cartStore.canProceedToNextStep || isSubmitting}
+						startIcon={isSubmitting ? <CircularProgress size={20} color="inherit" /> : <CheckCircle />}
+					>
+						{isSubmitting ? 'Submitting...' : 'Proceed to Signature'}
+					</Button>
+				)}
+			</DialogActions>
+		</Dialog>
+
+		<Dialog
+				open={isSignatureDialogOpen}
+				onClose={() => setIsSignatureDialogOpen(false)}
+				maxWidth="lg"
+				fullWidth
+				PaperProps={{
+					sx: {
+						height: '90vh',
+						width: '90vw',
+					}
+				}}
+			>
+				<DialogTitle>
+					 <Stack direction="row" justifyContent="space-between" alignItems="center">
+						<Typography variant="h6">Complete Your Signature</Typography>
+						<IconButton onClick={() => setIsSignatureDialogOpen(false)}>
+							<Close />
+						</IconButton>
+					</Stack>
+				</DialogTitle>
+				<DialogContent sx={{ p: 0, overflow: 'hidden' }}>
+					{signingUrl && (
+						<iframe
+							src={signingUrl}
+							width="100%"
+							height="100%"
+							frameBorder="0"
+							title="DocuSign Embedded Signing"
+						/>
+					)}
+				</DialogContent>
+			</Dialog>
+		</>
+	);
 });
 
 export default CheckoutDialog; 

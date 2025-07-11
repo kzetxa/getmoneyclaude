@@ -11,6 +11,7 @@ export interface CheckoutData {
   lastName: string;
   email: string;
   phone: string;
+  ssn: string;
   address: {
     street1: string;
     street2?: string;
@@ -31,6 +32,7 @@ export class CartStore {
     lastName: '',
     email: '',
     phone: '',
+    ssn: '',
     address: {
       street1: '',
       street2: '',
@@ -131,6 +133,7 @@ export class CartStore {
         lastName: '',
         email: '',
         phone: '',
+        ssn: '',
         address: {
           street1: '',
           street2: '',
