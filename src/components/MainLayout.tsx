@@ -30,7 +30,7 @@ const MainLayout: React.FC = observer(() => {
       >
         <Toolbar sx={{ px: { xs: 2, md: 4 } }}>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1, fontWeight: 600 }}>
-            💰 GetMoney - California Unclaimed Property Search
+            CA Unclaimed Property Search
           </Typography>
           <IconButton
             color="inherit"
