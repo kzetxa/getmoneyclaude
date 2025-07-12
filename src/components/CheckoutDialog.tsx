@@ -559,6 +559,7 @@ const CheckoutDialog: React.FC = observer(() => {
 							height="100%"
 							frameBorder="0"
 							title="DocuSign Embedded Signing"
+							allow="geolocation"
 						/>
 					)}
 				</DialogContent>

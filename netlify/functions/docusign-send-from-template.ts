@@ -126,7 +126,7 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
 		// --- Envelope Creation ---
 		const envelopeDefinition = new docusign.EnvelopeDefinition();
 		// const templateId = "ba7cfb97-1492-4320-a363-1314ec8a08ef";
-		const templateId = "ca0fcdc7-bbc9-41b7-badf-4267773fb56d";
+		const templateId = process.env.DOCUSIGN_TEMPLATE_ID || "ca0fcdc7-bbc9-41b7-badf-4267773fb56d";
 
 		if (!templateId) {
 			throw new Error("DocuSign template ID is not set in environment variables.");
