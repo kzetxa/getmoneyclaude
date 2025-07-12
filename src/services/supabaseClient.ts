@@ -84,6 +84,38 @@ export class PropertySearchService {
     }
   }
 
+  // Simple similarity calculation for fallback search
+  private static calculateSimilarity(name1: string, name2: string): number {
+    const n1 = name1.toLowerCase().trim();
+    const n2 = name2.toLowerCase().trim();
+    
+    // Exact match
+    if (n1 === n2) return 1.0;
+    
+    // Check if one name starts with the other
+    if (n1.startsWith(n2) || n2.startsWith(n1)) return 0.9;
+    
+    // Check if one name contains the other
+    if (n1.includes(n2) || n2.includes(n1)) return 0.8;
+    
+    // Check for reversed names (e.g., "NANCY ROBB" vs "ROBB NANCY")
+    const words1 = n1.split(' ').filter(w => w.length > 0);
+    const words2 = n2.split(' ').filter(w => w.length > 0);
+    
+    if (words1.length === 2 && words2.length >= 2) {
+      const reversed1 = `${words1[1]} ${words1[0]}`;
+      if (reversed1 === n2 || n2.includes(reversed1)) return 0.85;
+    }
+    
+    // Check for partial word matches
+    const commonWords = words1.filter(w => words2.some(w2 => w2.includes(w) || w.includes(w2)));
+    if (commonWords.length > 0) {
+      return Math.min(0.7, commonWords.length / Math.max(words1.length, words2.length));
+    }
+    
+    return 0.0;
+  }
+
   // Fallback search using test data when main database is unavailable
   private static fallbackSearch(
     searchName: string,
@@ -124,7 +156,7 @@ export class PropertySearchService {
         updated_at: new Date().toISOString(),
         owner_full_address: '123 Main St',
         holder_full_address: '100 N Tryon St',
-        similarity_score: searchName.toLowerCase().includes('john') || searchName.toLowerCase().includes('smith') ? 1.0 : 0.7
+        similarity_score: this.calculateSimilarity('John Smith', searchName)
       },
       {
         id: 'TEST002',
@@ -156,7 +188,7 @@ export class PropertySearchService {
         updated_at: new Date().toISOString(),
         owner_full_address: '456 Oak Avenue, Apt 2B',
         holder_full_address: '1 State Farm Plaza',
-        similarity_score: searchName.toLowerCase().includes('jane') || searchName.toLowerCase().includes('doe') ? 1.0 : 0.6
+        similarity_score: this.calculateSimilarity('Jane Doe', searchName)
       },
       {
         id: 'TEST003',
@@ -188,7 +220,39 @@ export class PropertySearchService {
         updated_at: new Date().toISOString(),
         owner_full_address: '789 Pine Street',
         holder_full_address: '77 Beale St',
-        similarity_score: searchName.toLowerCase().includes('michael') || searchName.toLowerCase().includes('johnson') ? 1.0 : 0.5
+        similarity_score: this.calculateSimilarity('Michael Johnson', searchName)
+      },
+      {
+        id: 'TEST004',
+        property_type: 'BANK',
+        cash_reported: 4200.00,
+        shares_reported: 0,
+        name_of_securities_reported: undefined,
+        number_of_owners: '1',
+        owner_name: 'ROBB NANCY C', // Test case for reversed name matching
+        owner_street_1: '555 Test Avenue',
+        owner_street_2: undefined,
+        owner_street_3: undefined,
+        owner_city: 'Berkeley',
+        owner_state: 'CA',
+        owner_zip: '94720',
+        owner_country_code: 'US',
+        current_cash_balance: 4200.00,
+        number_of_pending_claims: 0,
+        number_of_paid_claims: 0,
+        holder_name: 'Wells Fargo Bank',
+        holder_street_1: '420 Montgomery St',
+        holder_street_2: undefined,
+        holder_street_3: undefined,
+        holder_city: 'San Francisco',
+        holder_state: 'CA',
+        holder_zip: '94104',
+        cusip: undefined,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        owner_full_address: '555 Test Avenue',
+        holder_full_address: '420 Montgomery St',
+        similarity_score: this.calculateSimilarity('ROBB NANCY C', searchName)
       },
       {
         id: 'DEMO001',
@@ -224,9 +288,10 @@ export class PropertySearchService {
       }
     ];
 
-    // Filter results based on search criteria
+    // Filter results based on search criteria and similarity threshold
     const filtered = testResults.filter(result => {
-      const nameMatch = result.owner_name.toLowerCase().includes(searchName.toLowerCase());
+      const similarity = result.similarity_score;
+      const nameMatch = similarity > 0.3; // Only include results with decent similarity
       const amountMatch = (!minAmount || result.current_cash_balance >= minAmount) &&
                          (!maxAmount || result.current_cash_balance <= maxAmount);
       const cityMatch = !searchCity || result.owner_city?.toLowerCase().includes(searchCity.toLowerCase());
