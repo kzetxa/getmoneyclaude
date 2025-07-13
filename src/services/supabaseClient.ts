@@ -62,15 +62,24 @@ export class PropertySearchService {
     limit?: number;
   }): Promise<SearchPropertyResult[]> {
     try {
-      // Try the main search function first
-      const { data, error } = await supabase.rpc('search_properties_fuzzy', {
-        search_name: searchName,
-        min_amount: minAmount || null,
-        max_amount: maxAmount || null,
-        search_city: searchCity || null,
-        search_property_type: searchPropertyType || null,
-        search_limit: limit
-      });
+      const { data, error } = await supabase
+        .rpc('search_properties_fast', {
+          search_name: searchName,
+          min_amount: minAmount || null,
+          max_amount: maxAmount || null,
+          search_city: searchCity || null,
+          // <-- this key must exactly match the SQL arg name:
+          search_prop_type: searchPropertyType || null,
+          search_limit: limit
+        });
+      // const { data, error } = await supabase.rpc('search_properties_fast', {
+      //   search_name: searchName,
+      //   min_amount: minAmount || null,
+      //   max_amount: maxAmount || null,
+      //   search_city: searchCity || null,
+      //   search_property_type: searchPropertyType || null,
+      //   search_limit: limit
+      // });
 
       if (error) {
         console.warn('Main search failed, falling back to test data:', error);
