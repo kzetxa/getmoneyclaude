@@ -184,10 +184,16 @@ const CheckoutDialog: React.FC = observer(() => {
 												<Chip
 													icon={<AttachMoney />}
 													label={`$${item.property.currentCashBalance.toLocaleString()}`}
-													size="small"
+													size="medium"
 													color="success"
 													variant="outlined"
-													style={{ borderRadius: '3px' }}
+													sx={{ 
+														borderRadius: '3px',
+														'.MuiChip-label': { 
+															fontSize: '1.25rem',
+															fontWeight: 400,
+														}
+													}}
 												/>
 											</Stack>
 										}
@@ -212,11 +218,21 @@ const CheckoutDialog: React.FC = observer(() => {
 								Total Properties: {cartStore.itemCount}
 							</Typography>
 							<Chip
+								onClick={handleNext}
 								icon={<AttachMoney />}
 								label={`Total: $${cartStore.totalAmount.toLocaleString()}`}
 								color="success"
 								size="medium"
-								style={{ borderRadius: '3px' }}
+								sx={{
+									borderRadius: '3px',
+									fontSize: '1.5rem',
+									height: 'auto',
+									paddingY: 1,
+									paddingX: 2,
+									'& .MuiChip-icon': {
+										fontSize: '1.5rem'
+									}
+								}}
 							/>
 						</Box>
 					</Box>
@@ -457,17 +473,29 @@ const CheckoutDialog: React.FC = observer(() => {
 									Properties ({cartStore.itemCount})
 								</Typography>
 								{cartStore.sortedItems.map((item) => (
-									<Box key={item.property.id} sx={{ mb: 1 }}>
-										<Typography variant="body2">
-											<strong>{item.property.ownerName}</strong> - ${item.property.currentCashBalance.toLocaleString()}
-											(ID: {item.property.id})
+									<Box key={item.property.id} sx={{ mb: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+										<Box>
+											<Typography variant="body1">
+												<strong>{item.property.ownerName}</strong>
+											</Typography>
+											<Typography variant="caption" color="text.secondary">
+												(ID: {item.property.id})
+											</Typography>
+										</Box>
+										<Typography variant="h6" sx={{ fontWeight: 'bold', color: 'success.dark' }}>
+											${item.property.currentCashBalance.toLocaleString()}
 										</Typography>
 									</Box>
 								))}
-								<Divider sx={{ my: 1 }} />
-								<Typography variant="h6">
-									Total Amount: ${cartStore.totalAmount.toLocaleString()}
-								</Typography>
+								<Divider sx={{ my: 2 }} />
+								<Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+									<Typography variant="h5">
+										Total Amount:
+									</Typography>
+									<Typography variant="h4" sx={{ fontWeight: 'bold', color: 'success.dark' }}>
+										${cartStore.totalAmount.toLocaleString()}
+									</Typography>
+								</Box>
 							</CardContent>
 						</Card>
 					</Box>
