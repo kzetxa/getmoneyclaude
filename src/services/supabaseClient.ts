@@ -63,7 +63,7 @@ export class PropertySearchService {
   }): Promise<SearchPropertyResult[]> {
     try {
       // Try the main search function first
-      const { data, error } = await supabase.rpc('search_properties', {
+      const { data, error } = await supabase.rpc('search_properties_fuzzy', {
         search_name: searchName,
         min_amount: minAmount || null,
         max_amount: maxAmount || null,

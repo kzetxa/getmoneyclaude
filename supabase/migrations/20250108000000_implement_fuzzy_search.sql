@@ -182,7 +182,7 @@ BEGIN
     );
 END;
 $$ LANGUAGE plpgsql
-SET statement_timeout = '30s';
+SET statement_timeout = '40s';
 
 DO $$
 BEGIN
