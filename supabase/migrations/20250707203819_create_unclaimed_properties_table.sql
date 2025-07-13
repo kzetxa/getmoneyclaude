@@ -51,6 +51,7 @@ END;
 $$ language 'plpgsql';
 
 -- Create trigger to automatically update the updated_at column
+DROP TRIGGER IF EXISTS update_unclaimed_properties_updated_at ON unclaimed_properties;
 CREATE TRIGGER update_unclaimed_properties_updated_at
     BEFORE UPDATE ON unclaimed_properties
     FOR EACH ROW
@@ -93,6 +94,7 @@ SELECT
 FROM unclaimed_properties;
 
 -- Create a function for fuzzy name search
+DROP FUNCTION IF EXISTS search_properties(TEXT, DECIMAL, DECIMAL, TEXT, TEXT, INTEGER);
 CREATE OR REPLACE FUNCTION search_properties(
     search_name TEXT,
     min_amount DECIMAL DEFAULT NULL,
@@ -170,10 +172,12 @@ ALTER TABLE unclaimed_properties ENABLE ROW LEVEL SECURITY;
 ALTER TABLE data_imports ENABLE ROW LEVEL SECURITY;
 
 -- Create policies for public read access to unclaimed properties
+DROP POLICY IF EXISTS "Public read access to unclaimed properties" ON unclaimed_properties;
 CREATE POLICY "Public read access to unclaimed properties" ON unclaimed_properties
     FOR SELECT USING (true);
 
 -- Create policies for data imports (restrict to authenticated users if needed)
+DROP POLICY IF EXISTS "Public read access to data imports" ON data_imports;
 CREATE POLICY "Public read access to data imports" ON data_imports
     FOR SELECT USING (true);
 

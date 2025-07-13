@@ -41,8 +41,8 @@ const ResultsSection: React.FC = observer(() => {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
         <Stack direction="row" spacing={2} alignItems="center">
-          <CircularProgress size={24} sx={{ color: '#4ECDC4' }} />
-          <Typography sx={{ color: '#4ECDC4', fontWeight: 500 }}>Searching...</Typography>
+          <CircularProgress size={24} sx={{ color: '#FFFFFF' }} />
+          <Typography sx={{ color: '#FFFFFF', fontWeight: 500 }}>Searching...</Typography>
         </Stack>
       </Box>
     );
@@ -55,8 +55,9 @@ const ResultsSection: React.FC = observer(() => {
         sx={{ 
           mt: 2,
           backgroundColor: 'rgba(244, 67, 54, 0.1)',
-          color: '#4ECDC4',
+          color: '#f44336',
           border: '1px solid rgba(244, 67, 54, 0.3)',
+          borderRadius: '3px',
         }}
       >
         {propertyStore.error}
@@ -67,10 +68,10 @@ const ResultsSection: React.FC = observer(() => {
   if (!propertyStore.hasResults) {
     return (
       <Box sx={{ textAlign: 'center', py: 4 }}>
-        <Typography variant="h6" sx={{ color: '#4ECDC4', fontWeight: 600 }}>
+        <Typography variant="h6" sx={{ color: '#FFFFFF', fontWeight: 600 }}>
           No unclaimed property found for "{propertyStore.searchQuery}"
         </Typography>
-        <Typography variant="body1" sx={{ mt: 1, color: 'rgba(78, 205, 196, 0.7)' }}>
+        <Typography variant="body1" sx={{ mt: 1, color: 'rgba(255, 255, 255, 0.7)' }}>
           Try different spellings or check the advanced filters
         </Typography>
       </Box>
@@ -80,33 +81,12 @@ const ResultsSection: React.FC = observer(() => {
   return (
     <Box>
       <Box sx={{ mb: 4, textAlign: 'center' }}>
-        <Typography variant="h4" gutterBottom sx={{ color: '#4ECDC4', fontWeight: 700 }}>
+        <Typography variant="h4" gutterBottom sx={{ color: '#FFFFFF', fontWeight: 700 }}>
           Search Results
         </Typography>
-        <Typography variant="h6" sx={{ color: 'rgba(78, 205, 196, 0.8)' }}>
+        <Typography variant="h6" sx={{ color: 'rgba(255, 255, 255, 0.8)' }}>
           Found {propertyStore.searchResultsCount} result(s) for "{propertyStore.searchQuery}"
         </Typography>
-        
-        {propertyStore.usingFallbackData && (
-          <Alert 
-            severity="info" 
-            sx={{ 
-              mt: 2,
-              mb: 2,
-              backgroundColor: 'rgba(78, 205, 196, 0.1)',
-              color: '#4ECDC4',
-              border: '1px solid rgba(78, 205, 196, 0.3)',
-              borderRadius: '12px',
-              '& .MuiAlert-icon': {
-                color: '#4ECDC4'
-              }
-            }}
-          >
-            <Typography variant="body2" sx={{ fontWeight: 500 }}>
-              📊 Demo Mode: Database import in progress. Showing sample data for demonstration.
-            </Typography>
-          </Alert>
-        )}
       </Box>
 
       <Stack spacing={3}>
@@ -120,7 +100,7 @@ const ResultsSection: React.FC = observer(() => {
               sx={{ 
                 background: 'rgba(255, 255, 255, 0.95)',
                 backdropFilter: 'blur(10px)',
-                borderRadius: '16px',
+                borderRadius: '3px',
                 border: '1px solid rgba(78, 205, 196, 0.2)',
                 '&:hover': { 
                   elevation: 8,
@@ -157,6 +137,7 @@ const ResultsSection: React.FC = observer(() => {
                         size="small" 
                         color="primary" 
                         variant="outlined"
+                        style={{ borderRadius: '3px' }}
                       />
                       {isInCart ? (
                         <Button
@@ -165,7 +146,7 @@ const ResultsSection: React.FC = observer(() => {
                           size="small"
                           startIcon={<RemoveCircle />}
                           onClick={() => handleRemoveFromCart(property.id)}
-                          sx={{ minWidth: '120px' }}
+                          sx={{ minWidth: '120px', borderRadius: '3px' }}
                         >
                           Remove
                         </Button>
@@ -176,7 +157,7 @@ const ResultsSection: React.FC = observer(() => {
                           size="small"
                           startIcon={<ShoppingCart />}
                           onClick={() => handleAddToCart(property)}
-                          sx={{ minWidth: '120px' }}
+                          sx={{ minWidth: '120px', borderRadius: '3px' }}
                         >
                           Add to Cart
                         </Button>
@@ -233,11 +214,11 @@ const ResultsSection: React.FC = observer(() => {
         mt: 4, 
         p: 3, 
         background: 'rgba(78, 205, 196, 0.1)', 
-        borderRadius: '16px',
+        borderRadius: '3px',
         border: '1px solid rgba(78, 205, 196, 0.3)',
         textAlign: 'center',
       }}>
-        <Typography variant="body1" sx={{ color: '#4ECDC4', fontWeight: 500 }}>
+        <Typography variant="body1" sx={{ color: '#1D7874', fontWeight: 500 }}>
           <strong>Found property that belongs to you?</strong> Contact the California State Controller's Office 
           to claim your unclaimed property. Visit their official website for claim instructions.
         </Typography>

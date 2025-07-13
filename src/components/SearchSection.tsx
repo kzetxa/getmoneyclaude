@@ -39,24 +39,25 @@ const SearchSection: React.FC = observer(() => {
           value={propertyStore.searchQuery}
           onChange={handleSearchChange}
           InputProps={{
-            startAdornment: <Search sx={{ mr: 1, color: 'primary.main' }} />,
+            startAdornment: <Search sx={{ mr: 1, color: '#26A69A' }} />,
           }}
           sx={{ 
             flex: 1,
             '& .MuiOutlinedInput-root': {
+              borderRadius: '3px',
               height: '64px',
               fontSize: '1.125rem',
               fontWeight: 500,
               '& fieldset': {
                 borderWidth: '2px',
-                borderColor: 'rgba(78, 205, 196, 0.3)',
+                borderColor: '#26A69A',
               },
               '&:hover fieldset': {
-                borderColor: 'primary.main',
+                borderColor: '#1D7874',
                 borderWidth: '2px',
               },
               '&.Mui-focused fieldset': {
-                borderColor: 'primary.main',
+                borderColor: '#1D7874',
                 borderWidth: '2px',
               },
             },
@@ -73,13 +74,14 @@ const SearchSection: React.FC = observer(() => {
             height: '64px', 
             minWidth: '200px',
             borderWidth: '2px',
-            borderColor: 'primary.main',
-            color: 'primary.main',
+            borderColor: '#26A69A',
+            color: '#26A69A',
             fontWeight: 600,
             fontSize: '1rem',
+            borderRadius: '3px',
             '&:hover': {
               borderWidth: '2px',
-              backgroundColor: 'rgba(78, 205, 196, 0.1)',
+              backgroundColor: 'rgba(38, 166, 154, 0.1)',
             },
           }}
         >
@@ -98,7 +100,7 @@ const SearchSection: React.FC = observer(() => {
             px: 6,
             fontSize: '1.125rem',
             fontWeight: 700,
-            borderRadius: '12px',
+            borderRadius: '3px',
             textTransform: 'uppercase',
             letterSpacing: '0.05em',
             minWidth: '200px',
@@ -113,7 +115,7 @@ const SearchSection: React.FC = observer(() => {
       </Box>
 
       {showFilters && (
-        <Accordion expanded sx={{ mt: 2, boxShadow: 1 }}>
+        <Accordion expanded sx={{ mt: 2, boxShadow: 1, borderRadius: '3px', overflow: 'hidden' }}>
           <AccordionSummary>
             <Typography variant="h6">Search Filters</Typography>
           </AccordionSummary>
@@ -126,6 +128,7 @@ const SearchSection: React.FC = observer(() => {
                   type="number"
                   value={propertyStore.searchFilters.minAmount || ''}
                   onChange={(e) => handleFilterChange('minAmount', Number(e.target.value))}
+                  sx={{ '& .MuiOutlinedInput-root': { borderRadius: '3px' } }}
                 />
                 <TextField
                   fullWidth
@@ -133,6 +136,7 @@ const SearchSection: React.FC = observer(() => {
                   type="number"
                   value={propertyStore.searchFilters.maxAmount || ''}
                   onChange={(e) => handleFilterChange('maxAmount', Number(e.target.value))}
+                  sx={{ '& .MuiOutlinedInput-root': { borderRadius: '3px' } }}
                 />
               </Stack>
               <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
@@ -141,8 +145,9 @@ const SearchSection: React.FC = observer(() => {
                   label="City"
                   value={propertyStore.searchFilters.city || ''}
                   onChange={(e) => handleFilterChange('city', e.target.value)}
+                  sx={{ '& .MuiOutlinedInput-root': { borderRadius: '3px' } }}
                 />
-                <FormControl fullWidth>
+                <FormControl fullWidth sx={{ '& .MuiOutlinedInput-root': { borderRadius: '3px' } }}>
                   <InputLabel>Property Type</InputLabel>
                   <Select
                     value={propertyStore.searchFilters.propertyType || ''}

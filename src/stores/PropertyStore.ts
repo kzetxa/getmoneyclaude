@@ -9,7 +9,6 @@ export class PropertyStore {
   searchFilters: SearchFilters = {};
   isLoading = false;
   error: string | null = null;
-  usingFallbackData = false;
   lastUpdateDate: Date | null = null;
   searchQuery = '';
   _totalPropertyCount = 0;
@@ -112,12 +111,8 @@ export class PropertyStore {
 
       const convertedResults = results.map(result => this.convertDatabaseProperty(result));
       
-      // Check if we're using fallback data (test data has specific IDs)
-      const isFallbackData = results.length > 0 && results.some(r => r.id.startsWith('TEST') || r.id.startsWith('DEMO'));
-
       runInAction(() => {
         this.searchResults = convertedResults;
-        this.usingFallbackData = isFallbackData;
         this.isLoading = false;
         this.error = null;
       });
@@ -126,7 +121,6 @@ export class PropertyStore {
       runInAction(() => {
         this.error = error instanceof Error ? error.message : 'An error occurred while searching. Please try again.';
         this.isLoading = false;
-        this.usingFallbackData = false;
       });
     }
   };

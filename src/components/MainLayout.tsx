@@ -21,16 +21,15 @@ const MainLayout: React.FC = observer(() => {
     <Box sx={{ minHeight: '100vh', width: '100%' }}>
       {/* Header */}
       <AppBar 
-        position="static" 
-        elevation={0}
+        position="sticky" 
+        elevation={2}
         sx={{ 
-          backgroundColor: 'rgba(69, 81, 92, 0.95)',
-          backdropFilter: 'blur(10px)',
+          backgroundColor: '#26A69A',
         }}
       >
         <Toolbar sx={{ px: { xs: 2, md: 4 } }}>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1, fontWeight: 600 }}>
-            CA Unclaimed Property Search
+            Money Match
           </Typography>
           <IconButton
             color="inherit"
@@ -59,10 +58,10 @@ const MainLayout: React.FC = observer(() => {
             variant="h1" 
             component="h1" 
             sx={{ 
-              color: '#2E3A46',
+              color: '#FFFFFF',
               mb: 2,
               fontSize: { xs: '2.5rem', md: '4rem', lg: '5rem' },
-              textShadow: '0 2px 4px rgba(46, 58, 70, 0.1)',
+              textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
             }}
           >
             MONEY
@@ -73,11 +72,12 @@ const MainLayout: React.FC = observer(() => {
           <Typography 
             variant="h3" 
             sx={{ 
-              color: '#2E3A46',
+              color: '#FFFFFF',
               mb: 4,
               fontWeight: 700,
               fontSize: { xs: '1.25rem', md: '1.5rem' },
               letterSpacing: '0.1em',
+              opacity: 0.9,
             }}
           >
             NO CLAIM. NO GAIN.
@@ -87,11 +87,11 @@ const MainLayout: React.FC = observer(() => {
             variant="h4" 
             component="h2" 
             sx={{ 
-              color: '#2E3A46',
+              color: '#FFFFFF',
               mb: 6,
               fontWeight: 400,
               fontSize: { xs: '1.125rem', md: '1.25rem' },
-              opacity: 0.9,
+              opacity: 0.8,
               maxWidth: '600px',
               mx: 'auto',
             }}
@@ -101,10 +101,10 @@ const MainLayout: React.FC = observer(() => {
 
           {/* Search Section */}
           <Paper 
-            elevation={8} 
+            elevation={4} 
             sx={{ 
               p: { xs: 3, md: 4 }, 
-              borderRadius: '20px',
+              borderRadius: '3px',
               background: 'rgba(255, 255, 255, 0.95)',
               backdropFilter: 'blur(10px)',
               maxWidth: '800px',
@@ -130,7 +130,7 @@ const MainLayout: React.FC = observer(() => {
             variant="h3" 
             align="center" 
             sx={{ 
-              color: '#4ECDC4',
+              color: '#FFFFFF',
               mb: 2,
               fontWeight: 700,
               fontSize: { xs: '1.5rem', md: '2rem' },
@@ -143,7 +143,7 @@ const MainLayout: React.FC = observer(() => {
             variant="h4" 
             align="center" 
             sx={{ 
-              color: '#4ECDC4',
+              color: '#FFFFFF',
               mb: 4,
               fontWeight: 400,
               fontSize: { xs: '1rem', md: '1.25rem' },

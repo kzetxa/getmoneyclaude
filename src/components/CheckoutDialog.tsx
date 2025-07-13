@@ -187,6 +187,7 @@ const CheckoutDialog: React.FC = observer(() => {
 													size="small"
 													color="success"
 													variant="outlined"
+													style={{ borderRadius: '3px' }}
 												/>
 											</Stack>
 										}
@@ -215,6 +216,7 @@ const CheckoutDialog: React.FC = observer(() => {
 								label={`Total: $${cartStore.totalAmount.toLocaleString()}`}
 								color="success"
 								size="medium"
+								style={{ borderRadius: '3px' }}
 							/>
 						</Box>
 					</Box>
@@ -238,6 +240,7 @@ const CheckoutDialog: React.FC = observer(() => {
 									value={cartStore.checkoutData.firstName}
 									onChange={(e) => cartStore.updateCheckoutData({ firstName: e.target.value })}
 									required
+									sx={{ '& .MuiOutlinedInput-root': { borderRadius: '3px' } }}
 								/>
 								<TextField
 									fullWidth
@@ -245,6 +248,7 @@ const CheckoutDialog: React.FC = observer(() => {
 									value={cartStore.checkoutData.lastName}
 									onChange={(e) => cartStore.updateCheckoutData({ lastName: e.target.value })}
 									required
+									sx={{ '& .MuiOutlinedInput-root': { borderRadius: '3px' } }}
 								/>
 							</Stack>
 							<Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
@@ -255,12 +259,14 @@ const CheckoutDialog: React.FC = observer(() => {
 									value={cartStore.checkoutData.email}
 									onChange={(e) => cartStore.updateCheckoutData({ email: e.target.value })}
 									required
+									sx={{ '& .MuiOutlinedInput-root': { borderRadius: '3px' } }}
 								/>
 								<TextField
 									fullWidth
 									label="Phone Number"
 									value={cartStore.checkoutData.phone}
 									onChange={(e) => cartStore.updateCheckoutData({ phone: e.target.value })}
+									sx={{ '& .MuiOutlinedInput-root': { borderRadius: '3px' } }}
 								/>
 							</Stack>
 							<TextField
@@ -270,6 +276,7 @@ const CheckoutDialog: React.FC = observer(() => {
 								onChange={(e) => cartStore.updateCheckoutData({ ssn: e.target.value })}
 								required
 								placeholder="XXX-XX-XXXX"
+								sx={{ '& .MuiOutlinedInput-root': { borderRadius: '3px' } }}
 							/>
 						</Stack>
 
@@ -278,13 +285,13 @@ const CheckoutDialog: React.FC = observer(() => {
 						</Typography>
 
 						{cartStore.hasItems && hasAnyUsefulAddressData && (
-							<Card sx={{ mb: 2, bgcolor: 'info.light' }}>
+							<Card sx={{ mb: 2, borderRadius: '3px', bgcolor: 'rgba(0,0,0,0.03)' }}>
 								<CardContent>
 									<Stack direction="row" spacing={2} alignItems="center">
 										<Typography variant="body2" sx={{ flex: 1 }}>
 											Would you like to use an address from your property records?
 										</Typography>
-										<FormControl size="small" sx={{ minWidth: 200 }}>
+										<FormControl size="small" sx={{ minWidth: 200, '& .MuiOutlinedInput-root': { borderRadius: '3px' } }}>
 											<InputLabel>Select Property</InputLabel>
 											<Select
 												value={selectedProperty || ''}
@@ -308,6 +315,7 @@ const CheckoutDialog: React.FC = observer(() => {
 												cartStore.sortedItems.find(item => item.property.id === selectedProperty)?.property || {}
 											)}
 											sx={{
+												borderRadius: '3px',
 												bgcolor: '#2E3A46',
 												color: 'white',
 												fontWeight: 600,
@@ -334,12 +342,14 @@ const CheckoutDialog: React.FC = observer(() => {
 								value={cartStore.checkoutData.address.street1}
 								onChange={(e) => cartStore.updateCheckoutAddress({ street1: e.target.value })}
 								required
+								sx={{ '& .MuiOutlinedInput-root': { borderRadius: '3px' } }}
 							/>
 							<TextField
 								fullWidth
 								label="Street Address 2 (Optional)"
 								value={cartStore.checkoutData.address.street2}
 								onChange={(e) => cartStore.updateCheckoutAddress({ street2: e.target.value })}
+								sx={{ '& .MuiOutlinedInput-root': { borderRadius: '3px' } }}
 							/>
 							<Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
 								<TextField
@@ -348,8 +358,9 @@ const CheckoutDialog: React.FC = observer(() => {
 									value={cartStore.checkoutData.address.city}
 									onChange={(e) => cartStore.updateCheckoutAddress({ city: e.target.value })}
 									required
+									sx={{ '& .MuiOutlinedInput-root': { borderRadius: '3px' } }}
 								/>
-								<FormControl fullWidth required sx={{ minWidth: 120 }}>
+								<FormControl fullWidth required sx={{ minWidth: 120, '& .MuiOutlinedInput-root': { borderRadius: '3px' } }}>
 									<InputLabel>State</InputLabel>
 									<Select
 										value={cartStore.checkoutData.address.state}
@@ -369,7 +380,7 @@ const CheckoutDialog: React.FC = observer(() => {
 									value={cartStore.checkoutData.address.zipCode}
 									onChange={(e) => cartStore.updateCheckoutAddress({ zipCode: e.target.value })}
 									required
-									sx={{ minWidth: 120 }}
+									sx={{ minWidth: 120, '& .MuiOutlinedInput-root': { borderRadius: '3px' } }}
 								/>
 							</Stack>
 							<TextField
@@ -380,6 +391,7 @@ const CheckoutDialog: React.FC = observer(() => {
 								value={cartStore.checkoutData.notes}
 								onChange={(e) => cartStore.updateCheckoutData({ notes: e.target.value })}
 								placeholder="Any additional information that might help with your claim..."
+								sx={{ '& .MuiOutlinedInput-root': { borderRadius: '3px' } }}
 							/>
 						</Stack>
 					</Box>
@@ -399,7 +411,7 @@ const CheckoutDialog: React.FC = observer(() => {
 							Please review your information before generating the claim forms
 						</Typography>
 
-						<Card sx={{ mb: 2 }}>
+						<Card sx={{ mb: 2, borderRadius: '3px', bgcolor: 'rgba(0,0,0,0.03)' }}>
 							<CardContent>
 								<Typography variant="h6" gutterBottom>
 									Personal Information
@@ -425,7 +437,7 @@ const CheckoutDialog: React.FC = observer(() => {
 							</CardContent>
 						</Card>
 
-						<Card sx={{ mb: 2 }}>
+						<Card sx={{ mb: 2, borderRadius: '3px', bgcolor: 'rgba(0,0,0,0.03)' }}>
 							<CardContent>
 								<Typography variant="h6" gutterBottom>
 									Address
@@ -439,7 +451,7 @@ const CheckoutDialog: React.FC = observer(() => {
 							</CardContent>
 						</Card>
 
-						<Card>
+						<Card sx={{ borderRadius: '3px', bgcolor: 'rgba(0,0,0,0.03)' }}>
 							<CardContent>
 								<Typography variant="h6" gutterBottom>
 									Properties ({cartStore.itemCount})
@@ -474,7 +486,13 @@ const CheckoutDialog: React.FC = observer(() => {
 			maxWidth="md"
 			fullWidth
 			PaperProps={{
-				sx: { minHeight: '60vh' }
+				sx: { 
+					minHeight: '60vh',
+					borderRadius: '3px',
+					background: 'rgba(255, 255, 255, 0.95)',
+					backdropFilter: 'blur(10px)',
+					border: '1px solid rgba(255, 255, 255, 0.2)',
+				}
 			}}
 		>
 			<DialogTitle>
@@ -499,13 +517,13 @@ const CheckoutDialog: React.FC = observer(() => {
 			</DialogContent>
 
 			<DialogActions sx={{ p: 3 }}>
-				<Button onClick={handleClose} color="inherit">
+				<Button onClick={handleClose} color="inherit" sx={{ borderRadius: '3px' }}>
 					Cancel
 				</Button>
 
 				<Box sx={{ flex: 1 }} />
 				{cartStore.checkoutStep > 1 && (
-					<Button onClick={handleBack} color="inherit">
+					<Button onClick={handleBack} color="inherit" sx={{ borderRadius: '3px' }}>
 						Back
 					</Button>
 				)}
@@ -514,6 +532,7 @@ const CheckoutDialog: React.FC = observer(() => {
 						onClick={handleNext}
 						variant="contained"
 						disabled={!cartStore.canProceedToNextStep}
+						sx={{ borderRadius: '3px' }}
 					>
 						Next
 					</Button>
@@ -524,6 +543,7 @@ const CheckoutDialog: React.FC = observer(() => {
 						color="success"
 						disabled={!cartStore.canProceedToNextStep || isSubmitting}
 						startIcon={isSubmitting ? <CircularProgress size={20} color="inherit" /> : <CheckCircle />}
+						sx={{ borderRadius: '3px' }}
 					>
 						{isSubmitting ? 'Submitting...' : 'Proceed to Signature'}
 					</Button>
@@ -537,9 +557,12 @@ const CheckoutDialog: React.FC = observer(() => {
 				maxWidth="lg"
 				fullWidth
 				PaperProps={{
-					sx: {
+					sx: { 
 						height: '90vh',
-						width: '90vw',
+						borderRadius: '3px',
+						background: 'rgba(255, 255, 255, 0.95)',
+						backdropFilter: 'blur(10px)',
+						border: '1px solid rgba(255, 255, 255, 0.2)',
 					}
 				}}
 			>

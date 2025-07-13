@@ -6,7 +6,7 @@
  * This script downloads the latest data from California State Controller's Office
  * and imports it into our Supabase database.
  * 
- * Usage: node scripts/import-data.js
+ * Usage: node scripts/import-data.js [--local]
  */
 
 import { createClient } from '@supabase/supabase-js';
@@ -22,15 +22,31 @@ import { parse } from 'csv-parse';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
+// Argument parsing for --local flag
+const isLocal = process.argv.includes('--local');
+
 // Configuration
 const DATA_URL = 'https://dpupd.sco.ca.gov/04_From_500_To_Beyond.zip';
 const DOWNLOAD_DIR = path.join(__dirname, '../temp');
 const ZIP_FILE = path.join(DOWNLOAD_DIR, 'california_data.zip');
 const BATCH_SIZE = 250; // Process records in smaller batches to avoid conflicts
 
-// Supabase configuration - these should be environment variables
-const SUPABASE_URL = process.env.SUPABASE_URL || 'https://zunezecqnsoileitnifl.supabase.co';
-const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1bmV6ZWNxbnNvaWxlaXRuaWZsIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MTkxOTkyMywiZXhwIjoyMDY3NDk1OTIzfQ.-MZyNeCHc_jcsBSUYxzxuUzqMNBuYDM1r8VLBAbT81w';
+// Supabase configuration
+const LOCAL_SUPABASE_URL = 'http://127.0.0.1:54321';
+const LOCAL_SUPABASE_SERVICE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU';
+
+const PROD_SUPABASE_URL = process.env.SUPABASE_URL || 'https://zunezecqnsoileitnifl.supabase.co';
+const PROD_SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1bmV6ZWNxbnNvaWxlaXRuaWZsIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MTkxOTkyMywiZXhwIjoyMDY3NDk1OTIzfQ.-MZyNeCHc_jcsBSUYxzxuUzqMNBuYDM1r8VLBAbT81w';
+
+const SUPABASE_URL = isLocal ? LOCAL_SUPABASE_URL : PROD_SUPABASE_URL;
+const SUPABASE_SERVICE_KEY = isLocal ? LOCAL_SUPABASE_SERVICE_KEY : PROD_SUPABASE_SERVICE_KEY;
+
+if (isLocal) {
+  console.log('--- Using LOCAL Supabase instance ---');
+  console.log(`URL: ${SUPABASE_URL}`);
+} else {
+  console.log('--- Using PRODUCTION Supabase instance ---');
+}
 
 // Initialize Supabase client with service key for admin operations
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
@@ -316,7 +332,8 @@ async function processRecords(records, importId) {
       });
       
     } catch (error) {
-      console.error(`❌ Batch ${Math.floor(i / BATCH_SIZE) + 1} failed:`, error.message);
+      const errorMessage = error.message || JSON.stringify(error, null, 2);
+      console.error(`❌ Batch ${Math.floor(i / BATCH_SIZE) + 1} failed:`, errorMessage);
       failedRecords += batch.length;
       
       await updateImportRecord(importId, {
@@ -345,17 +362,33 @@ async function main() {
   console.log('Source:', DATA_URL);
   
   let importId = null;
+  const extractDir = path.join(DOWNLOAD_DIR, 'extracted');
+  let csvFiles = [];
   
   try {
-    // Step 1: Download the data
-    await downloadFile(DATA_URL, ZIP_FILE);
-    
-    // Step 2: Extract ZIP file
-    const extractDir = path.join(DOWNLOAD_DIR, 'extracted');
-    const csvFiles = await extractZipFile(ZIP_FILE, extractDir);
+    // Step 1: Check for existing data to resume/reuse
+    if (fs.existsSync(extractDir)) {
+      console.log('🔎 Found existing extracted data directory.');
+      csvFiles = findCSVFilesRecursively(extractDir);
+      if (csvFiles.length > 0) {
+        console.log(`  Found ${csvFiles.length} CSV files. Skipping download and extraction.`);
+      } else {
+        console.warn('⚠️ Extracted data directory is empty. Will attempt to re-process from ZIP if available.');
+      }
+    }
+
+    // Step 2: Download and/or extract if needed
+    if (csvFiles.length === 0) {
+      if (fs.existsSync(ZIP_FILE)) {
+        console.log('🔎 Found existing ZIP file. Skipping download.');
+      } else {
+        await downloadFile(DATA_URL, ZIP_FILE);
+      }
+      csvFiles = await extractZipFile(ZIP_FILE, extractDir);
+    }
     
     if (csvFiles.length === 0) {
-      throw new Error('No CSV files found in the downloaded ZIP');
+      throw new Error('No CSV files found to process.');
     }
     
     // Step 3: Count total records first (without loading them)
@@ -372,15 +405,13 @@ async function main() {
     importId = await createImportRecord(totalRecords);
     console.log(`📝 Created import record with ID: ${importId}`);
     
-    // Step 5: Clear existing data (optional - comment out if you want to keep existing data)
-    console.log('🗑️ Clearing existing data...');
-    const { error: deleteError } = await supabase
-      .from('unclaimed_properties')
-      .delete()
-      .neq('id', ''); // Delete all records
+    // Step 5: Clear existing data using the truncate function
+    console.log('🗑️ Clearing existing data via TRUNCATE...');
+    const { error: truncateError } = await supabase.rpc('truncate_unclaimed_properties');
       
-    if (deleteError) {
-      console.warn('Warning: Could not clear existing data:', deleteError.message);
+    if (truncateError) {
+      // Don't throw an error, but log a warning. The table might not exist on first run.
+      console.warn('Warning: Could not clear existing data:', truncateError.message);
     }
     
     // Step 6: Process each CSV file individually to avoid memory issues
@@ -408,7 +439,7 @@ async function main() {
     await updateImportRecord(importId, {
       successful_records: totalSuccessful,
       failed_records: totalFailed,
-      import_status: totalFailed > 0 ? 'completed' : 'completed'
+      import_status: totalFailed > 0 ? 'completed_with_errors' : 'completed'
     });
     
     console.log('\n✅ Import completed successfully!');
