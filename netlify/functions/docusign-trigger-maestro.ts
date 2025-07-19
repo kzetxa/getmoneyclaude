@@ -8,6 +8,16 @@ interface RequestData {
   workflowId: string;
   claimantName: string;
   claimantEmail: string;
+  // eNotary specific fields
+  claimantPhone?: string;
+  claimantAddress?: string;
+  claimantSSN?: string;
+  // Property information
+  propertyIds?: string[];
+  claimAmounts?: string[];
+  // Notary information (if you want to specify a particular notary)
+  notaryEmail?: string;
+  notaryName?: string;
   // You can add any other input variables your Maestro workflow needs
   // For example:
   // propertyId: string;
@@ -39,7 +49,7 @@ const handler: Handler = async (event: HandlerEvent) => {
       throw new Error("Missing workflowId, claimantName, or claimantEmail in the request body.");
     }
 
-    console.log(`[Maestro Start] Triggering workflow: ${workflowId} for ${claimantEmail}`);
+    console.log(`[Maestro Start] Triggering eNotary workflow: ${workflowId} for ${claimantEmail}`);
 
     // --- DocuSign API Client Initialization (same as other functions) ---
     const apiClient = new docusign.ApiClient();
@@ -74,35 +84,58 @@ const handler: Handler = async (event: HandlerEvent) => {
     // --- Trigger Maestro Workflow ---
     const workflowsApi = new docusign.WorkflowsApi(apiClient);
     
+    // Prepare input parameters for the Maestro workflow
+    const inputParameters: { [key: string]: any } = {
+      // Basic claimant information
+      ClaimantName: claimantName,
+      ClaimantEmail: claimantEmail,
+      ClaimantPhone: requestData.claimantPhone || '',
+      ClaimantAddress: requestData.claimantAddress || '',
+      ClaimantSSN: requestData.claimantSSN || '',
+      
+      // Property information (if provided)
+      PropertyIds: requestData.propertyIds ? requestData.propertyIds.join(',') : '',
+      ClaimAmounts: requestData.claimAmounts ? requestData.claimAmounts.join(',') : '',
+      
+      // Notary information (if specified)
+      NotaryEmail: requestData.notaryEmail || '',
+      NotaryName: requestData.notaryName || '',
+      
+      // Timestamp for audit trail
+      RequestTimestamp: new Date().toISOString(),
+      
+      // Pass any other data from the request body to the workflow
+      ...requestData
+    };
+
     const workflowInstance = {
       // The workflowId for the Maestro workflow you created in DocuSign
       workflowId: workflowId,
-      instanceName: `Unclaimed Property Claim for ${claimantName}`,
+      instanceName: `eNotary Unclaimed Property Claim for ${claimantName}`,
       // These key-value pairs are the inputs for your workflow
-      inputParameters: {
-        // IMPORTANT: The keys here ('ClaimantName', 'ClaimantEmail') MUST
-        // exactly match the names of the input variables in your Maestro workflow.
-        ClaimantName: claimantName,
-        ClaimantEmail: claimantEmail,
-        // Pass any other data from the request body to the workflow
-        ...requestData
-      }
+      inputParameters: inputParameters
     };
 
-    console.log("[DocuSign] Creating Maestro workflow instance...");
+    console.log("[DocuSign] Creating eNotary Maestro workflow instance...");
+    console.log("[DocuSign] Input parameters:", inputParameters);
+    
     const result = await workflowsApi.createWorkflowInstance(accountId, {
       triggerWorkflowInstanceRequest: workflowInstance
     });
-    console.log(`[DocuSign] Workflow instance created successfully. Instance ID: ${result.instanceId}`);
+    console.log(`[DocuSign] eNotary workflow instance created successfully. Instance ID: ${result.instanceId}`);
 
     return {
       statusCode: 200,
-      body: JSON.stringify({ success: true, instanceId: result.instanceId }),
+      body: JSON.stringify({ 
+        success: true, 
+        instanceId: result.instanceId,
+        message: "eNotary workflow triggered successfully. The notary will be notified and can begin the notarization process."
+      }),
       headers: responseHeaders,
     };
 
   } catch (error) {
-    console.error('Error processing request:', error);
+    console.error('Error processing eNotary request:', error);
     const errorMessage = error.response?.data?.message || error.message;
     return {
       statusCode: 500,

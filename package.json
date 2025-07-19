@@ -26,6 +26,7 @@
     "mobx": "^6.13.7",
     "mobx-react-lite": "^4.1.0",
     "pdf-lib": "^1.17.1",
+    "pg": "^8.16.3",
     "react": "^19.1.0",
     "react-confetti": "^6.4.0",
     "react-dom": "^19.1.0",

@@ -101,4 +101,61 @@ export class PDFService {
       throw new Error(`Failed to send for signature: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
+
+  static async sendForENotary(formData: FormData): Promise<any> {
+    try {
+      console.log('Preparing data for eNotary workflow...');
+      const { properties, claimantData } = formData;
+
+      const claimantAddress = [
+        claimantData.address.street1,
+        claimantData.address.street2,
+        `${claimantData.address.city}, ${claimantData.address.state} ${claimantData.address.zipCode}`
+      ].filter(Boolean).join('\n');
+
+      // Prepare property data for the workflow
+      const propertyIds = properties.map(p => p.id);
+      const claimAmounts = properties.map(p => `$${p.currentCashBalance.toLocaleString()}`);
+
+      const workflowData = {
+        workflowId: process.env.REACT_APP_DOCUSIGN_ENOTARY_WORKFLOW_ID || 'your-enotary-workflow-id',
+        claimantName: `${claimantData.firstName} ${claimantData.lastName}`,
+        claimantEmail: claimantData.email,
+        claimantPhone: claimantData.phone || '',
+        claimantAddress: claimantAddress,
+        claimantSSN: claimantData.ssn,
+        propertyIds: propertyIds,
+        claimAmounts: claimAmounts,
+        // You can optionally specify a particular notary
+        // notaryEmail: 'specific-notary@example.com',
+        // notaryName: 'Specific Notary Name'
+      };
+
+      console.log('Invoking Netlify function to trigger eNotary workflow...', { workflowData });
+      
+      const response = await fetch('/.netlify/functions/docusign-trigger-maestro', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(workflowData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(`Failed to trigger eNotary workflow: ${errorData.error || response.statusText}`);
+      }
+      
+      const data = await response.json();
+      console.log('Successfully triggered eNotary workflow via Netlify function.', data);
+
+      return {
+        success: true,
+        instanceId: data.instanceId,
+        message: data.message || 'eNotary workflow initiated successfully'
+      };
+
+    } catch (error) {
+      console.error('Error in sendForENotary:', error);
+      throw new Error(`Failed to trigger eNotary workflow: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }
 } 
