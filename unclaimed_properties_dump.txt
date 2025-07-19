@@ -1,0 +1,9 @@
+PGPASSWORD=postgres pg_dump \
+  -U postgres \
+  -h 127.0.0.1 \
+  -p 54322 \
+  -t unclaimed_properties \
+  -a \
+  -F c \
+  -d postgres \
+  -f unclaimed_properties_data.dump
