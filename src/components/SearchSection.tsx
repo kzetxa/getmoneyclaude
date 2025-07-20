@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { observer } from 'mobx-react-lite';
 import {
   TextField,
-  Button,
   Box,
   Stack,
   Accordion,
@@ -14,12 +13,13 @@ import {
   Select,
   MenuItem,
 } from '@mui/material';
-import { Search, Tune } from '@mui/icons-material';
+// import { Search, Tune } from '@mui/icons-material';
+import { Search } from '@mui/icons-material';
 import { usePropertyStore } from '../stores/StoreContext';
 
 const SearchSection: React.FC = observer(() => {
   const propertyStore = usePropertyStore();
-  const [showFilters, setShowFilters] = useState(false);
+  const [showFilters,] = useState(false);
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     propertyStore.setSearchQuery(event.target.value);

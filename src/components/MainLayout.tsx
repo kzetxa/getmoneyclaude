@@ -59,7 +59,7 @@ const MainLayout: React.FC = observer(() => {
             component="h1" 
             sx={{ 
               mb: 2,
-              fontSize: { xs: '2.5rem', md: '4rem', lg: '5rem' },
+              fontSize: { xs: '3rem', md: '8rem', lg: '10rem' },
               textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
               fontWeight: 900,
             }}
@@ -74,7 +74,7 @@ const MainLayout: React.FC = observer(() => {
             sx={{ 
               mb: 4,
               fontWeight: 700,
-              fontSize: { xs: '1.25rem', md: '1.5rem' },
+              fontSize: { xs: '1.5rem', md: '2.5rem' },
               letterSpacing: '0.1em',
               opacity: 0.9,
             }}
