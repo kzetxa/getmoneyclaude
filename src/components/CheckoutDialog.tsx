@@ -332,7 +332,7 @@ const CheckoutDialog: React.FC = observer(() => {
 											)}
 											sx={{
 												borderRadius: '3px',
-												bgcolor: '#2E3A46',
+												bgcolor: 'rgb(72, 73, 85)',
 												color: 'white',
 												fontWeight: 600,
 												'&:hover': {

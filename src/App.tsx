@@ -7,29 +7,19 @@ import DocusignReturnPage from './components/DocusignReturnPage';
 
 const theme = createTheme({
   palette: {
-    primary: {
-      main: '#4ECDC4', // Mint green
-      light: '#80E1D9',
-      dark: '#26A69A',
-      contrastText: '#ffffff',
-    },
     secondary: {
       main: '#45515C', // Dark gray for contrast
       light: '#6C7B89',
-      dark: '#2E3A46',
+      dark: 'rgb(72, 73, 85)',
       contrastText: '#ffffff',
     },
-    background: {
-      default: '#4ECDC4', // Mint green background
-      paper: '#ffffff',
-    },
     text: {
-      primary: '#2E3A46',
+      primary: 'rgb(72, 73, 85)',
       secondary: '#45515C',
     },
   },
   typography: {
-    fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+    fontFamily: '"Inter", "SF Pro Display", "SF Pro", "Roboto", "Helvetica", "Arial", sans-serif',
     h1: {
       fontSize: '4rem',
       fontWeight: 900,
@@ -67,9 +57,10 @@ const theme = createTheme({
           padding: '12px 24px',
         },
         contained: {
+          backgroundColor: '#4CAF50', // Green background color
           boxShadow: '0 4px 12px rgba(78, 205, 196, 0.3)',
           '&:hover': {
-            boxShadow: '0 6px 16px rgba(78, 205, 196, 0.4)',
+            backgroundColor: '#45a049', // Darker green on hover
           },
         },
       },

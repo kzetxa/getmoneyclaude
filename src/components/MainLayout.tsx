@@ -18,13 +18,13 @@ import CheckoutDialog from './CheckoutDialog';
 const MainLayout: React.FC = observer(() => {
   const cartStore = useCartStore();
   return (
-    <Box sx={{ minHeight: '100vh', width: '100%' }}>
+    <Box sx={{ minHeight: '100vh', width: '100%', backgroundColor: 'rgba(156, 229, 199, 1)' }}>
       {/* Header */}
       <AppBar 
         position="sticky" 
         elevation={2}
         sx={{ 
-          backgroundColor: '#26A69A',
+          backgroundColor: 'rgb(72, 73, 85)',
         }}
       >
         <Toolbar sx={{ px: { xs: 2, md: 4 } }}>
@@ -37,7 +37,7 @@ const MainLayout: React.FC = observer(() => {
             disabled={!cartStore.hasItems}
           >
             <Badge badgeContent={cartStore.itemCount} color="secondary">
-              <ShoppingCart />
+              <ShoppingCart color="primary" sx={{ color: '#FFFFFF', fontWeight: 900 }} />
             </Badge>
           </IconButton>
         </Toolbar>
@@ -47,7 +47,7 @@ const MainLayout: React.FC = observer(() => {
       <Box 
         sx={{ 
           width: '100%',
-          background: 'linear-gradient(135deg, #4ECDC4 0%, #26A69A 100%)',
+          height: '100%',
           py: { xs: 6, md: 10 },
           px: { xs: 2, md: 4 },
           textAlign: 'center',
@@ -58,10 +58,10 @@ const MainLayout: React.FC = observer(() => {
             variant="h1" 
             component="h1" 
             sx={{ 
-              color: '#FFFFFF',
               mb: 2,
               fontSize: { xs: '2.5rem', md: '4rem', lg: '5rem' },
               textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
+              fontWeight: 900,
             }}
           >
             MONEY
@@ -72,7 +72,6 @@ const MainLayout: React.FC = observer(() => {
           <Typography 
             variant="h3" 
             sx={{ 
-              color: '#FFFFFF',
               mb: 4,
               fontWeight: 700,
               fontSize: { xs: '1.25rem', md: '1.5rem' },
@@ -81,22 +80,6 @@ const MainLayout: React.FC = observer(() => {
             }}
           >
             NO CLAIM. NO GAIN.
-          </Typography>
-
-          <Typography 
-            variant="h4" 
-            component="h2" 
-            sx={{ 
-              color: '#FFFFFF',
-              mb: 6,
-              fontWeight: 400,
-              fontSize: { xs: '1.125rem', md: '1.25rem' },
-              opacity: 0.8,
-              maxWidth: '600px',
-              mx: 'auto',
-            }}
-          >
-            Search California's unclaimed property database to discover funds that may be owed to you
           </Typography>
 
           {/* Search Section */}
@@ -120,7 +103,7 @@ const MainLayout: React.FC = observer(() => {
       <Box 
         sx={{ 
           width: '100%',
-          background: '#2E3A46',
+          background: 'rgb(72, 73, 85)',
           py: { xs: 4, md: 6 },
           px: { xs: 2, md: 4 },
         }}
@@ -157,8 +140,18 @@ const MainLayout: React.FC = observer(() => {
           <ResultsSection />
         </Box>
       </Box>
-      
-      {/* Checkout Dialog */}
+      <Box
+        sx={{
+          width: '100%',
+          height: '100%',
+          background: 'rgba(156, 229, 199, 1)',
+          py: { xs: 4, md: 6 },
+          px: { xs: 2, md: 4 },
+        }}
+      >
+
+      </Box>
+
       <CheckoutDialog />
     </Box>
   );

@@ -66,7 +66,7 @@ const SearchSection: React.FC = observer(() => {
             },
           }}
         />
-        <Button
+        {/* <Button
           variant="outlined"
           startIcon={<Tune />}
           onClick={() => setShowFilters(!showFilters)}
@@ -86,33 +86,8 @@ const SearchSection: React.FC = observer(() => {
           }}
         >
           Advanced Filters
-        </Button>
+        </Button> */}
       </Stack>
-
-      <Box sx={{ mt: 3, textAlign: 'center' }}>
-        <Button
-          variant="contained"
-          size="large"
-          onClick={() => propertyStore.performSearch()}
-          disabled={!propertyStore.searchQuery.trim() || propertyStore.isLoading}
-          sx={{
-            py: 2,
-            px: 6,
-            fontSize: '1.125rem',
-            fontWeight: 700,
-            borderRadius: '3px',
-            textTransform: 'uppercase',
-            letterSpacing: '0.05em',
-            minWidth: '200px',
-            background: 'linear-gradient(135deg, #4ECDC4 0%, #26A69A 100%)',
-            '&:hover': {
-              background: 'linear-gradient(135deg, #26A69A 0%, #4ECDC4 100%)',
-            },
-          }}
-        >
-          {propertyStore.isLoading ? 'Searching...' : 'Find My Money'}
-        </Button>
-      </Box>
 
       {showFilters && (
         <Accordion expanded sx={{ mt: 2, boxShadow: 1, borderRadius: '3px', overflow: 'hidden' }}>

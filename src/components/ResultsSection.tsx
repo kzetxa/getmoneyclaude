@@ -85,7 +85,7 @@ const ResultsSection: React.FC = observer(() => {
           Search Results
         </Typography>
         <Typography variant="h6" sx={{ color: 'rgba(255, 255, 255, 0.8)' }}>
-          Found {propertyStore.searchResultsCount} result(s) for "{propertyStore.searchQuery}"
+          Found {propertyStore.searchResultsCount} {propertyStore.searchResultsCount === 1 ? 'result' : 'results'} for "{propertyStore.searchQuery}"
         </Typography>
       </Box>
 
@@ -209,20 +209,6 @@ const ResultsSection: React.FC = observer(() => {
           );
         })}
       </Stack>
-
-      <Box sx={{
-        mt: 4,
-        p: 3,
-        background: 'rgba(78, 205, 196, 0.1)',
-        borderRadius: '3px',
-        border: '1px solid rgba(78, 205, 196, 0.3)',
-        textAlign: 'center',
-      }}>
-        <Typography variant="body1" sx={{ color: '#1D7874', fontWeight: 500 }}>
-          <strong>Found property that belongs to you?</strong> Contact the California State Controller's Office
-          to claim your unclaimed property. Visit their official website for claim instructions.
-        </Typography>
-      </Box>
     </Box>
   );
 });
