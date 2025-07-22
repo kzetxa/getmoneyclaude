@@ -24,7 +24,7 @@ const theme = createTheme({
       fontSize: '4rem',
       fontWeight: 900,
       letterSpacing: '-0.02em',
-      lineHeight: 1.1,
+      lineHeight: 0.73,
     },
     h2: {
       fontSize: '3rem',

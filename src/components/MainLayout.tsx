@@ -45,7 +45,7 @@ const MainLayout: React.FC = observer(() => {
       >
         <Toolbar sx={{ px: { xs: 2, md: 4 } }}>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1, fontWeight: 600 }}>
-            Money Match
+            {/* <img style={{ width: '100px' }} src="src/assets/logo_transparent_187x80.png" alt="Money Match" /> */}
           </Typography>
           <IconButton
             color="inherit"
@@ -80,25 +80,11 @@ const MainLayout: React.FC = observer(() => {
               fontWeight: 900,
             }}
           >
-            MONEY
-            <br />
-            MATCH
-          </Typography>
-          
-          <Typography 
-            variant="h3" 
-            sx={{ 
-              mb: 4,
-              fontWeight: 700,
-              fontSize: { xs: '1.5rem', md: '2.5rem' },
-              letterSpacing: '0.1em',
-              opacity: 0.9,
-            }}
-          >
-            NO CLAIM. NO GAIN.
+            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+              <img src="src/assets/logo_transparent_2000x1000.png" alt="Money Match" style={{ maxWidth: '100%', height: 'auto', width: '100%' }} />
+            </Box>
           </Typography>
 
-          {/* Search Section */}
           <Paper 
             elevation={4} 
             sx={{ 
