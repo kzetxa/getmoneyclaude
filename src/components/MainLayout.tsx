@@ -14,6 +14,7 @@ import { useCartStore, usePropertyStore } from '../stores/StoreContext';
 import SearchSection from './SearchSection';
 import ResultsSection from './ResultsSection';
 import CheckoutDialog from './CheckoutDialog';
+import logoImage from '../assets/logo_transparent_2000x1000.png';
 
 const MainLayout: React.FC = observer(() => {
   const cartStore = useCartStore();
@@ -81,7 +82,7 @@ const MainLayout: React.FC = observer(() => {
             }}
           >
             <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-              <img src="src/assets/logo_transparent_2000x1000.png" alt="Money Match" style={{ maxWidth: '100%', height: 'auto', width: '100%' }} />
+              <img src={logoImage} alt="Money Match" style={{ maxWidth: '100%', height: 'auto', width: '100%' }} />
             </Box>
           </Typography>
 
