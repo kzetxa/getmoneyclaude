@@ -41,7 +41,7 @@ const SearchSection: React.FC = observer(() => {
           InputProps={{
             startAdornment: <Search sx={{ mr: 1, color: '#26A69A' }} />,
           }}
-          sx={{ 
+          sx={{
             flex: 1,
             '& .MuiOutlinedInput-root': {
               borderRadius: '3px',

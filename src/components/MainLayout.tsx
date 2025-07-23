@@ -22,17 +22,17 @@ const MainLayout: React.FC = observer(() => {
   const resultsSectionRef = useRef<HTMLDivElement>(null);
 
   // Scroll to results when search results are loaded
-  useEffect(() => {
-    if (propertyStore.hasSearched && !propertyStore.isLoading && resultsSectionRef.current) {
-      // Add a small delay to ensure the results are rendered
-      setTimeout(() => {
-        resultsSectionRef.current?.scrollIntoView({ 
-          behavior: 'smooth',
-          block: 'start'
-        });
-      }, 100);
-    }
-  }, [propertyStore.hasSearched, propertyStore.isLoading, propertyStore.searchResults]);
+  // useEffect(() => {
+  //   if (propertyStore.hasSearched && !propertyStore.isLoading && resultsSectionRef.current) {
+  //     // Add a small delay to ensure the results are rendered
+  //     setTimeout(() => {
+  //       resultsSectionRef.current?.scrollIntoView({ 
+  //         behavior: 'smooth',
+  //         block: 'start'
+  //       });
+  //     }, 100);
+  //   }
+  // }, [propertyStore.hasSearched, propertyStore.isLoading, propertyStore.searchResults]);
 
   return (
     <Box sx={{ minHeight: '100vh', width: '100%', backgroundColor: 'rgba(156, 229, 199, 1)' }}>
