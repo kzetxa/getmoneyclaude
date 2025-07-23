@@ -276,6 +276,8 @@ const CheckoutDialog: React.FC = observer(() => {
 									value={cartStore.checkoutData.email}
 									onChange={(e) => cartStore.updateCheckoutData({ email: e.target.value })}
 									required
+									error={cartStore.checkoutData.email.trim() !== '' && !cartStore.isValidEmail(cartStore.checkoutData.email)}
+									helperText={cartStore.checkoutData.email.trim() !== '' && !cartStore.isValidEmail(cartStore.checkoutData.email) ? 'Please enter a valid email address' : ''}
 									sx={{ '& .MuiOutlinedInput-root': { borderRadius: '3px' } }}
 								/>
 								<TextField
