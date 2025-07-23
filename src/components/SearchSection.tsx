@@ -81,7 +81,11 @@ const SearchSection: React.FC = observer(() => {
         <Button
           variant="contained"
           onClick={handleSearch}
-          disabled={propertyStore.isLoading || !propertyStore.searchQuery.trim()}
+          disabled={
+            propertyStore.isLoading || 
+            !propertyStore.searchQuery.trim() || 
+            propertyStore.searchQuery.trim() === propertyStore.lastSearchedQuery
+          }
           sx={{ 
             height: '64px', 
             minWidth: '120px',
