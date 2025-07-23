@@ -1,4 +1,5 @@
-import React, { useRef, useEffect } from 'react';
+// import React, { useRef, useEffect } from 'react';
+import React, { useRef } from 'react';
 import {
   AppBar,
   Toolbar,
@@ -10,7 +11,8 @@ import {
 } from '@mui/material';
 import { ShoppingCart } from '@mui/icons-material';
 import { observer } from 'mobx-react-lite';
-import { useCartStore, usePropertyStore } from '../stores/StoreContext';
+// import { useCartStore, usePropertyStore } from '../stores/StoreContext';
+import { useCartStore } from '../stores/StoreContext';
 import SearchSection from './SearchSection';
 import ResultsSection from './ResultsSection';
 import CheckoutDialog from './CheckoutDialog';
@@ -18,7 +20,7 @@ import logoImage from '../assets/logo_transparent_2000x1000.png';
 
 const MainLayout: React.FC = observer(() => {
   const cartStore = useCartStore();
-  const propertyStore = usePropertyStore();
+  // const propertyStore = usePropertyStore();
   const resultsSectionRef = useRef<HTMLDivElement>(null);
 
   // Scroll to results when search results are loaded
