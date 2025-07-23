@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ThemeProvider, createTheme, CssBaseline } from '@mui/material';
 import { StoreProvider } from './stores/StoreContext';
 import MainLayout from './components/MainLayout';
+import PricingPage from './components/PricingPage';
 import ClaimSubmittedPage from './components/ClaimSubmittedPage';
 import DocusignReturnPage from './components/DocusignReturnPage';
 
@@ -92,6 +93,7 @@ function App() {
         <Router>
           <Routes>
             <Route path="/" element={<MainLayout />} />
+            <Route path="/pricing" element={<PricingPage />} />
             <Route path="/thank-you" element={<ClaimSubmittedPage />} />
             <Route path="/docusign-return" element={<DocusignReturnPage />} />
           </Routes>

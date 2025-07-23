@@ -197,6 +197,7 @@ const CheckoutDialog: React.FC = observer(() => {
 												/>
 											</Stack>
 										}
+										secondaryTypographyProps={{ component: 'div' }}
 									/>
 									<ListItemSecondaryAction>
 										<IconButton
