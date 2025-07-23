@@ -11,6 +11,7 @@ export class PropertyStore {
   error: string | null = null;
   lastUpdateDate: Date | null = null;
   searchQuery = '';
+  lastSearchedQuery = ''; // Track the last query that was actually searched
   _totalPropertyCount = 0;
   
   constructor() {
@@ -65,43 +66,41 @@ export class PropertyStore {
   // Actions
   setSearchQuery = (query: string) => {
     this.searchQuery = query;
-    if (query.trim()) {
-      // Add small delay to reduce load during import
-      setTimeout(() => {
-        if (this.searchQuery === query) { // Only search if query hasn't changed
-          this.performSearch();
-        }
-      }, 300);
-    } else {
-      this.clearSearch();
-    }
+    // Remove automatic search - now only searches when explicitly triggered
   };
 
   setSearchFilters = (filters: Partial<SearchFilters>) => {
     this.searchFilters = { ...this.searchFilters, ...filters };
-    if (this.searchQuery.trim()) {
-      this.performSearch();
-    }
+    // Remove automatic search on filter change
   };
 
   clearSearch = () => {
     this.searchResults = [];
     this.searchQuery = '';
+    this.lastSearchedQuery = '';
     this.error = null;
   };
 
   performSearch = async () => {
-    if (!this.searchQuery.trim()) {
+    const trimmedQuery = this.searchQuery.trim();
+    
+    if (!trimmedQuery) {
       this.clearSearch();
+      return;
+    }
+
+    // Prevent searching with the same text string
+    if (trimmedQuery === this.lastSearchedQuery) {
       return;
     }
 
     this.isLoading = true;
     this.error = null;
+    this.lastSearchedQuery = trimmedQuery;
 
     try {
       const results = await PropertySearchService.searchProperties({
-        searchName: this.searchQuery.trim(),
+        searchName: trimmedQuery,
         minAmount: this.searchFilters.minAmount,
         maxAmount: this.searchFilters.maxAmount,
         searchCity: this.searchFilters.city,
@@ -146,6 +145,6 @@ export class PropertyStore {
   }
 
   get hasSearched() {
-    return this.searchQuery.trim().length > 0;
+    return this.lastSearchedQuery.length > 0;
   }
 } 
