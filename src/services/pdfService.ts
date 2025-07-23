@@ -67,7 +67,7 @@ export class PDFService {
           
           templateData[`owner_name${suffix}`] = property.ownerName;
           templateData[`owner_address${suffix}`] = ownerAddress;
-          templateData[`property_id${suffix}`] = property.id;
+          templateData[`property_id${suffix}`] = property.id?.split('_')?.[0] || '';
         templateData[`amount${suffix}`] = `$${property.currentCashBalance.toLocaleString()}`;
           templateData[`account_type${suffix}`] = property.propertyType;
           templateData[`reported_by${suffix}`] = property.holderName;
