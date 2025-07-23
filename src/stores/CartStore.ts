@@ -165,6 +165,12 @@ export class CartStore {
     };
   }
 
+  // Email validation helper
+  isValidEmail(email: string): boolean {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email.trim());
+  }
+
   get canProceedToNextStep() {
     switch (this.checkoutStep) {
       case 1:
@@ -173,6 +179,7 @@ export class CartStore {
         return this.checkoutData.firstName.trim() !== '' &&
                this.checkoutData.lastName.trim() !== '' &&
                this.checkoutData.email.trim() !== '' &&
+               this.isValidEmail(this.checkoutData.email) &&
                this.checkoutData.address.street1.trim() !== '' &&
                this.checkoutData.address.city.trim() !== '' &&
                this.checkoutData.address.state.trim() !== '' &&
