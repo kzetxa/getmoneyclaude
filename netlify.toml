@@ -2,9 +2,27 @@
   command = "pnpm install && pnpm run build"
   publish = "dist"
 
+[build.environment]
+  NODE_VERSION = "22"
+
 [functions]
   directory = "netlify/functions"
   node_bundler = "esbuild"
+
+# Production deployment (main branch)
+[context.production]
+  command = "pnpm install && pnpm run build"
+  environment = { NODE_ENV = "production" }
+
+# Staging deployment (staging branch)
+[context.staging]
+  command = "pnpm install && pnpm run build"
+  environment = { NODE_ENV = "staging" }
+
+# Preview deployments (pull requests and other branches)
+[context.deploy-preview]
+  command = "pnpm install && pnpm run build"
+  environment = { NODE_ENV = "preview" }
 
 [[redirects]]
   from = "/*"
