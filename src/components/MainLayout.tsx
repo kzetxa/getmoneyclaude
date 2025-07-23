@@ -10,6 +10,7 @@ import CheckoutDialog from './CheckoutDialog';
 import Header from './Header';
 import ResultsSection from './ResultsSection';
 import SearchSection from './SearchSection';
+import ScrollDownAnimation from './ScrollDownAnimation';
 
 const MainLayout: React.FC = observer(() => {
   // const propertyStore = usePropertyStore();
@@ -113,6 +114,9 @@ const MainLayout: React.FC = observer(() => {
           >
             on-the-spot claim submissions!
           </Typography>
+          
+          {/* Scroll Down Animation */}
+          <ScrollDownAnimation />
           
           <ResultsSection />
         </Box>
