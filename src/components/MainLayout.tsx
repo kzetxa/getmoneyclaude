@@ -1,5 +1,4 @@
-// import React, { useRef, useEffect } from 'react';
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import {
   AppBar,
   Toolbar,
@@ -11,8 +10,7 @@ import {
 } from '@mui/material';
 import { ShoppingCart } from '@mui/icons-material';
 import { observer } from 'mobx-react-lite';
-// import { useCartStore, usePropertyStore } from '../stores/StoreContext';
-import { useCartStore } from '../stores/StoreContext';
+import { useCartStore, usePropertyStore } from '../stores/StoreContext';
 import SearchSection from './SearchSection';
 import ResultsSection from './ResultsSection';
 import CheckoutDialog from './CheckoutDialog';
@@ -20,21 +18,21 @@ import logoImage from '../assets/logo_transparent_2000x1000.png';
 
 const MainLayout: React.FC = observer(() => {
   const cartStore = useCartStore();
-  // const propertyStore = usePropertyStore();
+  const propertyStore = usePropertyStore();
   const resultsSectionRef = useRef<HTMLDivElement>(null);
 
   // Scroll to results when search results are loaded
-  // useEffect(() => {
-  //   if (propertyStore.hasSearched && !propertyStore.isLoading && resultsSectionRef.current) {
-  //     // Add a small delay to ensure the results are rendered
-  //     setTimeout(() => {
-  //       resultsSectionRef.current?.scrollIntoView({ 
-  //         behavior: 'smooth',
-  //         block: 'start'
-  //       });
-  //     }, 100);
-  //   }
-  // }, [propertyStore.hasSearched, propertyStore.isLoading, propertyStore.searchResults]);
+  useEffect(() => {
+    if (propertyStore.hasSearched && !propertyStore.isLoading && resultsSectionRef.current) {
+      // Add a small delay to ensure the results are rendered
+      setTimeout(() => {
+        resultsSectionRef.current?.scrollIntoView({ 
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }, 100);
+    }
+  }, [propertyStore.hasSearched, propertyStore.isLoading, propertyStore.searchResults]);
 
   return (
     <Box sx={{ minHeight: '100vh', width: '100%', backgroundColor: 'rgba(156, 229, 199, 1)' }}>
