@@ -1,20 +1,16 @@
 import React, { useRef, useEffect } from 'react';
 import {
-  AppBar,
-  Toolbar,
-  Typography,
   Box,
   Paper,
-  IconButton,
-  Badge,
+  Typography,
 } from '@mui/material';
-import { ShoppingCart } from '@mui/icons-material';
 import { observer } from 'mobx-react-lite';
 import { useCartStore, usePropertyStore } from '../stores/StoreContext';
 import SearchSection from './SearchSection';
 import ResultsSection from './ResultsSection';
 import CheckoutDialog from './CheckoutDialog';
-import logoImage from '../assets/logo_transparent_2000x1000.png';
+import Header from './Header';
+import logoImage from '../assets/moneymatched_grey.png';
 
 const MainLayout: React.FC = observer(() => {
   const cartStore = useCartStore();
@@ -37,28 +33,7 @@ const MainLayout: React.FC = observer(() => {
   return (
     <Box sx={{ minHeight: '100vh', width: '100%', backgroundColor: 'rgba(156, 229, 199, 1)' }}>
       {/* Header */}
-      <AppBar 
-        position="sticky" 
-        elevation={2}
-        sx={{ 
-          backgroundColor: 'rgb(72, 73, 85)',
-        }}
-      >
-        <Toolbar sx={{ px: { xs: 2, md: 4 } }}>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1, fontWeight: 600 }}>
-            {/* <img style={{ width: '100px' }} src="src/assets/logo_transparent_187x80.png" alt="Money Match" /> */}
-          </Typography>
-          <IconButton
-            color="inherit"
-            onClick={() => cartStore.openCheckout()}
-            disabled={!cartStore.hasItems}
-          >
-            <Badge badgeContent={cartStore.itemCount} color="secondary">
-              <ShoppingCart color="primary" sx={{ color: '#FFFFFF', fontWeight: 900 }} />
-            </Badge>
-          </IconButton>
-        </Toolbar>
-      </AppBar>
+      <Header />
       
       {/* Hero Section */}
       <Box 
