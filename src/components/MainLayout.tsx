@@ -11,6 +11,7 @@ import Header from './Header';
 import ResultsSection from './ResultsSection';
 import SearchSection from './SearchSection';
 import ScrollDownAnimation from './ScrollDownAnimation';
+import StickyCartButton from './StickyCartButton';
 
 const MainLayout: React.FC = observer(() => {
   // const propertyStore = usePropertyStore();
@@ -134,6 +135,7 @@ const MainLayout: React.FC = observer(() => {
       </Box>
 
       <CheckoutDialog />
+      <StickyCartButton />
     </Box>
   );
 });

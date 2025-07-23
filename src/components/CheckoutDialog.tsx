@@ -51,7 +51,7 @@ const US_STATES = [
 const CheckoutDialog: React.FC = observer(() => {
 	const cartStore = useCartStore();
 	const navigate = useNavigate();
-	const [selectedProperty, setSelectedProperty] = useState<string | null>(null);
+
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [signingUrl, setSigningUrl] = useState<string | null>(null);
 	const [isSignatureDialogOpen, setIsSignatureDialogOpen] = useState(false);
@@ -76,31 +76,9 @@ const CheckoutDialog: React.FC = observer(() => {
 		};
 	}, [cartStore, navigate]);
 
-	// Helper function to check if a property has useful address data
-	const hasUsefulAddressData = (property: any): boolean => {
-		const hasContent = (field: string | undefined | null): boolean => {
-			return field != null && field.trim().length > 0;
-		};
-		// ownerStreet1 now contains the full address from database response
-		return hasContent(property.ownerCity) || hasContent(property.ownerStreet1);
-	};
 
-	// Check if any properties have useful address data
-	const hasAnyUsefulAddressData = cartStore.sortedItems.some(item =>
-		hasUsefulAddressData(item.property)
-	);
 
-	useEffect(() => {
-		// Auto-select first property with useful address data for prepopulation
-		if (cartStore.hasItems && !selectedProperty && hasAnyUsefulAddressData) {
-			const propertyWithAddress = cartStore.sortedItems.find(item =>
-				hasUsefulAddressData(item.property)
-			);
-			if (propertyWithAddress) {
-				setSelectedProperty(propertyWithAddress.property.id);
-			}
-		}
-	}, [cartStore.hasItems, selectedProperty, hasAnyUsefulAddressData]);
+
 
 	const handleClose = () => {
 		cartStore.closeCheckout();
@@ -118,14 +96,7 @@ const CheckoutDialog: React.FC = observer(() => {
 		}
 	};
 
-	const handlePrepopulateAddress = () => {
-		if (selectedProperty) {
-			const property = cartStore.sortedItems.find(item => item.property.id === selectedProperty)?.property;
-			if (property) {
-				cartStore.prepopulateFromProperty(property);
-			}
-		}
-	};
+
 
 	const handleSubmit = async () => {
 		setIsSubmitting(true);
@@ -303,56 +274,7 @@ const CheckoutDialog: React.FC = observer(() => {
 							Address Information
 						</Typography>
 
-						{cartStore.hasItems && hasAnyUsefulAddressData && (
-							<Card sx={{ mb: 2, borderRadius: '3px', bgcolor: 'rgba(0,0,0,0.03)' }}>
-								<CardContent>
-									<Stack direction="row" spacing={2} alignItems="center">
-										<Typography variant="body2" sx={{ flex: 1 }}>
-											Would you like to use an address from your property records?
-										</Typography>
-										<FormControl size="small" sx={{ minWidth: 200, '& .MuiOutlinedInput-root': { borderRadius: '3px' } }}>
-											<InputLabel>Select Property</InputLabel>
-											<Select
-												value={selectedProperty || ''}
-												label="Select Property"
-												onChange={(e) => setSelectedProperty(e.target.value)}
-											>
-												{cartStore.sortedItems
-													.filter(item => hasUsefulAddressData(item.property))
-													.map((item) => (
-														<MenuItem key={item.property.id} value={item.property.id}>
-															{item.property.ownerName} - {item.property.id}
-														</MenuItem>
-													))}
-											</Select>
-										</FormControl>
-										<Button
-											variant="contained"
-											size="small"
-											onClick={handlePrepopulateAddress}
-											disabled={!selectedProperty || !hasUsefulAddressData(
-												cartStore.sortedItems.find(item => item.property.id === selectedProperty)?.property || {}
-											)}
-											sx={{
-												borderRadius: '3px',
-												bgcolor: 'rgb(72, 73, 85)',
-												color: 'white',
-												fontWeight: 600,
-												'&:hover': {
-													bgcolor: '#1a252f',
-												},
-												'&:disabled': {
-													bgcolor: 'rgba(46, 58, 70, 0.5)',
-													color: 'rgba(255, 255, 255, 0.5)',
-												}
-											}}
-										>
-											Use This Address
-										</Button>
-									</Stack>
-								</CardContent>
-							</Card>
-						)}
+
 
 						<Stack spacing={2}>
 							<TextField

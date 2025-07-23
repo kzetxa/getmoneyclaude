@@ -12,6 +12,7 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  Button,
 } from '@mui/material';
 // import { Search, Tune } from '@mui/icons-material';
 import { Search } from '@mui/icons-material';
@@ -23,6 +24,16 @@ const SearchSection: React.FC = observer(() => {
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     propertyStore.setSearchQuery(event.target.value);
+  };
+
+  const handleSearch = () => {
+    propertyStore.performSearch();
+  };
+
+  const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      handleSearch();
+    }
   };
 
   const handleFilterChange = (field: string, value: string | number) => {
@@ -38,6 +49,7 @@ const SearchSection: React.FC = observer(() => {
           placeholder="Enter your name (e.g., John Smith)"
           value={propertyStore.searchQuery}
           onChange={handleSearchChange}
+          onKeyPress={handleKeyPress}
           InputProps={{
             startAdornment: <Search sx={{ mr: 1, color: '#26A69A' }} />,
           }}
@@ -66,6 +78,34 @@ const SearchSection: React.FC = observer(() => {
             },
           }}
         />
+        <Button
+          variant="contained"
+          onClick={handleSearch}
+          disabled={
+            propertyStore.isLoading || 
+            !propertyStore.searchQuery.trim() || 
+            propertyStore.searchQuery.trim() === propertyStore.lastSearchedQuery
+          }
+          sx={{ 
+            height: '64px', 
+            minWidth: '120px',
+            backgroundColor: '#26A69A',
+            color: '#FFFFFF',
+            fontWeight: 600,
+            fontSize: '1rem',
+            borderRadius: '3px',
+            textTransform: 'none',
+            '&:hover': {
+              backgroundColor: '#1D7874',
+            },
+            '&:disabled': {
+              backgroundColor: 'rgba(38, 166, 154, 0.5)',
+              color: 'rgba(255, 255, 255, 0.7)',
+            },
+          }}
+        >
+          {propertyStore.isLoading ? 'Searching...' : 'Search'}
+        </Button>
         {/* <Button
           variant="outlined"
           startIcon={<Tune />}
