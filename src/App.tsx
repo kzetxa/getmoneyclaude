@@ -5,6 +5,7 @@ import MainLayout from './components/MainLayout';
 import PricingPage from './components/PricingPage';
 import ClaimSubmittedPage from './components/ClaimSubmittedPage';
 import DocusignReturnPage from './components/DocusignReturnPage';
+import useGA4 from './hooks/useGA4';
 
 const theme = createTheme({
   palette: {
@@ -91,15 +92,25 @@ function App() {
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <Router>
-          <Routes>
-            <Route path="/" element={<MainLayout />} />
-            <Route path="/pricing" element={<PricingPage />} />
-            <Route path="/thank-you" element={<ClaimSubmittedPage />} />
-            <Route path="/docusign-return" element={<DocusignReturnPage />} />
-          </Routes>
+          <AppRoutes />
         </Router>
       </ThemeProvider>
     </StoreProvider>
+  );
+}
+
+// Separate component to use the GA4 hook inside Router context
+function AppRoutes() {
+  // Initialize GA4 tracking inside Router context
+  useGA4();
+
+  return (
+    <Routes>
+      <Route path="/" element={<MainLayout />} />
+      <Route path="/pricing" element={<PricingPage />} />
+      <Route path="/thank-you" element={<ClaimSubmittedPage />} />
+      <Route path="/docusign-return" element={<DocusignReturnPage />} />
+    </Routes>
   );
 }
 
