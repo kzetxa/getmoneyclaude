@@ -5,6 +5,7 @@ import MainLayout from './components/MainLayout';
 import PricingPage from './components/PricingPage';
 import ClaimSubmittedPage from './components/ClaimSubmittedPage';
 import DocusignReturnPage from './components/DocusignReturnPage';
+import useGA4 from './hooks/useGA4';
 
 const theme = createTheme({
   palette: {
@@ -86,6 +87,9 @@ const theme = createTheme({
 });
 
 function App() {
+  // Initialize GA4 tracking
+  useGA4();
+
   return (
     <StoreProvider>
       <ThemeProvider theme={theme}>
