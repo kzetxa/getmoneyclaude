@@ -324,16 +324,6 @@ const CheckoutDialog: React.FC = observer(() => {
 									sx={{ minWidth: 120, '& .MuiOutlinedInput-root': { borderRadius: '3px' } }}
 								/>
 							</Stack>
-							<TextField
-								fullWidth
-								label="Additional Notes (Optional)"
-								multiline
-								rows={3}
-								value={cartStore.checkoutData.notes}
-								onChange={(e) => cartStore.updateCheckoutData({ notes: e.target.value })}
-								placeholder="Any additional information that might help with your claim..."
-								sx={{ '& .MuiOutlinedInput-root': { borderRadius: '3px' } }}
-							/>
 						</Stack>
 					</Box>
 				);
