@@ -158,9 +158,9 @@ const CheckoutDialog: React.FC = observer(() => {
 													size="medium"
 													color="success"
 													variant="outlined"
-													sx={{ 
+													sx={{
 														borderRadius: '3px',
-														'.MuiChip-label': { 
+														'.MuiChip-label': {
 															fontSize: '1.25rem',
 															fontWeight: 400,
 														}
@@ -273,13 +273,11 @@ const CheckoutDialog: React.FC = observer(() => {
 									}
 									return masked;
 								})()}
-								onChange={(e) => {
-									// Remove any non-digit characters from input
-									const digitsOnly = e.target.value.replace(/\D/g, '');
-									// Limit to 9 digits
-									const limitedDigits = digitsOnly.substring(0, 9);
-									// Store the actual SSN value (digits only) in the store
-									cartStore.updateCheckoutData({ ssn: limitedDigits });
+								onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+									const ssn = e.target.value.replace(/\D/g, ''); // Remove non-digit characters
+									if (ssn.length <= 9) {
+										cartStore.updateCheckoutData({ ssn: ssn });
+									}
 								}}
 								required
 								placeholder="XXX-XX-XXXX"
@@ -440,84 +438,84 @@ const CheckoutDialog: React.FC = observer(() => {
 
 	return (
 		<>
-		<Dialog
-			open={cartStore.isCheckoutOpen && !isSignatureDialogOpen}
-			onClose={handleClose}
-			maxWidth="md"
-			fullWidth
-			PaperProps={{
-				sx: { 
-					minHeight: '60vh',
-					borderRadius: '3px',
-					background: 'rgba(255, 255, 255, 0.95)',
-					backdropFilter: 'blur(10px)',
-					border: '1px solid rgba(255, 255, 255, 0.2)',
-				}
-			}}
-		>
-			<DialogTitle>
-				<Stack direction="row" justifyContent="space-between" alignItems="center">
-					<Typography variant="h5">Checkout</Typography>
-					<IconButton onClick={handleClose}>
-						<Close />
-					</IconButton>
-				</Stack>
-			</DialogTitle>
+			<Dialog
+				open={cartStore.isCheckoutOpen && !isSignatureDialogOpen}
+				onClose={handleClose}
+				maxWidth="md"
+				fullWidth
+				PaperProps={{
+					sx: {
+						minHeight: '60vh',
+						borderRadius: '3px',
+						background: 'rgba(255, 255, 255, 0.95)',
+						backdropFilter: 'blur(10px)',
+						border: '1px solid rgba(255, 255, 255, 0.2)',
+					}
+				}}
+			>
+				<DialogTitle>
+					<Stack direction="row" justifyContent="space-between" alignItems="center">
+						<Typography variant="h5">Checkout</Typography>
+						<IconButton onClick={handleClose}>
+							<Close />
+						</IconButton>
+					</Stack>
+				</DialogTitle>
 
-			<DialogContent>
-				<Stepper activeStep={cartStore.checkoutStep - 1} sx={{ mb: 3 }}>
-					{steps.map((label) => (
-						<Step key={label}>
-							<StepLabel>{label}</StepLabel>
-						</Step>
-					))}
-				</Stepper>
+				<DialogContent>
+					<Stepper activeStep={cartStore.checkoutStep - 1} sx={{ mb: 3 }}>
+						{steps.map((label) => (
+							<Step key={label}>
+								<StepLabel>{label}</StepLabel>
+							</Step>
+						))}
+					</Stepper>
 
-				{renderStepContent()}
-			</DialogContent>
+					{renderStepContent()}
+				</DialogContent>
 
-			<DialogActions sx={{ p: 3 }}>
-				<Button onClick={handleClose} color="inherit" sx={{ borderRadius: '3px' }}>
-					Cancel
-				</Button>
-
-				<Box sx={{ flex: 1 }} />
-				{cartStore.checkoutStep > 1 && (
-					<Button onClick={handleBack} color="inherit" sx={{ borderRadius: '3px' }}>
-						Back
+				<DialogActions sx={{ p: 3 }}>
+					<Button onClick={handleClose} color="inherit" sx={{ borderRadius: '3px' }}>
+						Cancel
 					</Button>
-				)}
-				{cartStore.checkoutStep < 3 ? (
-					<Button
-						onClick={handleNext}
-						variant="contained"
-						disabled={!cartStore.canProceedToNextStep}
-						sx={{ borderRadius: '3px' }}
-					>
-						Next
-					</Button>
-				) : (
-					<Button
-						onClick={handleSubmit}
-						variant="contained"
-						color="success"
-						disabled={!cartStore.canProceedToNextStep || isSubmitting}
-						startIcon={isSubmitting ? <CircularProgress size={20} color="inherit" /> : <CheckCircle />}
-						sx={{ borderRadius: '3px' }}
-					>
-						{isSubmitting ? 'Submitting...' : 'Proceed to Signature'}
-					</Button>
-				)}
-			</DialogActions>
-		</Dialog>
 
-		<Dialog
+					<Box sx={{ flex: 1 }} />
+					{cartStore.checkoutStep > 1 && (
+						<Button onClick={handleBack} color="inherit" sx={{ borderRadius: '3px' }}>
+							Back
+						</Button>
+					)}
+					{cartStore.checkoutStep < 3 ? (
+						<Button
+							onClick={handleNext}
+							variant="contained"
+							disabled={!cartStore.canProceedToNextStep}
+							sx={{ borderRadius: '3px' }}
+						>
+							Next
+						</Button>
+					) : (
+						<Button
+							onClick={handleSubmit}
+							variant="contained"
+							color="success"
+							disabled={!cartStore.canProceedToNextStep || isSubmitting}
+							startIcon={isSubmitting ? <CircularProgress size={20} color="inherit" /> : <CheckCircle />}
+							sx={{ borderRadius: '3px' }}
+						>
+							{isSubmitting ? 'Submitting...' : 'Proceed to Signature'}
+						</Button>
+					)}
+				</DialogActions>
+			</Dialog>
+
+			<Dialog
 				open={isSignatureDialogOpen}
 				onClose={() => setIsSignatureDialogOpen(false)}
 				maxWidth="lg"
 				fullWidth
 				PaperProps={{
-					sx: { 
+					sx: {
 						height: '90vh',
 						borderRadius: '3px',
 						background: 'rgba(255, 255, 255, 0.95)',
@@ -527,7 +525,7 @@ const CheckoutDialog: React.FC = observer(() => {
 				}}
 			>
 				<DialogTitle>
-					 <Stack direction="row" justifyContent="space-between" alignItems="center">
+					<Stack direction="row" justifyContent="space-between" alignItems="center">
 						<Typography variant="h6">Complete Your Signature</Typography>
 						<IconButton onClick={() => setIsSignatureDialogOpen(false)}>
 							<Close />
