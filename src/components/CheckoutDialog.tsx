@@ -262,25 +262,23 @@ const CheckoutDialog: React.FC = observer(() => {
 							<TextField
 								fullWidth
 								label="Social Security Number (SSN)"
-								value={(() => {
-									const ssn = cartStore.checkoutData.ssn;
-									if (!ssn) return '';
-									// Format as XXX-XX-XXXX with asterisks
-									let masked = '';
-									for (let i = 0; i < Math.min(ssn.length, 9); i++) {
-										if (i === 3 || i === 5) masked += '-';
-										masked += '*';
-									}
-									return masked;
-								})()}
+								value={cartStore.formatSSN(cartStore.checkoutData.ssn)}
 								onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-									const ssn = e.target.value.replace(/\D/g, ''); // Remove non-digit characters
-									if (ssn.length <= 9) {
-										cartStore.updateCheckoutData({ ssn: ssn });
+									// Remove all non-digit characters from input
+									const digitsOnly = e.target.value.replace(/\D/g, '');
+									// Limit to 9 digits maximum
+									if (digitsOnly.length <= 9) {
+										cartStore.updateCheckoutData({ ssn: digitsOnly });
 									}
 								}}
 								required
-								placeholder="XXX-XX-XXXX"
+								placeholder="123-45-6789"
+								error={cartStore.checkoutData.ssn.trim() !== '' && !cartStore.isValidSSN(cartStore.checkoutData.ssn)}
+								helperText={
+									cartStore.checkoutData.ssn.trim() !== '' && !cartStore.isValidSSN(cartStore.checkoutData.ssn)
+										? 'Please enter a valid 9-digit Social Security Number'
+										: 'Required for claim verification'
+								}
 								sx={{ '& .MuiOutlinedInput-root': { borderRadius: '3px' } }}
 							/>
 						</Stack>
@@ -377,6 +375,12 @@ const CheckoutDialog: React.FC = observer(() => {
 										<Box>
 											<Typography variant="body2" color="text.secondary">Phone:</Typography>
 											<Typography>{cartStore.checkoutData.phone}</Typography>
+										</Box>
+									)}
+									{cartStore.checkoutData.ssn && (
+										<Box>
+											<Typography variant="body2" color="text.secondary">SSN:</Typography>
+											<Typography>{cartStore.maskSSN(cartStore.checkoutData.ssn)}</Typography>
 										</Box>
 									)}
 								</Stack>
