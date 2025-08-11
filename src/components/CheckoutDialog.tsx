@@ -27,12 +27,15 @@ import {
 	Select,
 	MenuItem,
 	CircularProgress,
+	InputAdornment,
 } from '@mui/material';
 import {
 	Close,
 	Delete,
 	AttachMoney,
 	CheckCircle,
+	Visibility,
+	VisibilityOff,
 } from '@mui/icons-material';
 import { useCartStore } from '../stores/StoreContext';
 import { PDFService, type FormData } from '../services/pdfService';
@@ -55,6 +58,24 @@ const CheckoutDialog: React.FC = observer(() => {
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [signingUrl, setSigningUrl] = useState<string | null>(null);
 	const [isSignatureDialogOpen, setIsSignatureDialogOpen] = useState(false);
+	const [showSSN, setShowSSN] = useState(false);
+
+	// Function to display SSN as dots when hidden, formatted when shown
+	const getSSNDisplayValue = () => {
+		const ssnValue = cartStore.checkoutData.ssn;
+		if (!ssnValue) return '';
+		
+		if (showSSN) {
+			return cartStore.formatSSN(ssnValue);
+		} else {
+			// Show dots in SSN format pattern
+			const cleanSSN = ssnValue.replace(/\D/g, '');
+			if (cleanSSN.length === 0) return '';
+			if (cleanSSN.length <= 3) return '•'.repeat(cleanSSN.length);
+			if (cleanSSN.length <= 5) return `${'•'.repeat(3)}-${'•'.repeat(cleanSSN.length - 3)}`;
+			return `${'•'.repeat(3)}-${'•'.repeat(2)}-${'•'.repeat(Math.min(cleanSSN.length - 5, 4))}`;
+		}
+	};
 
 	useEffect(() => {
 		const handleMessage = (event: MessageEvent) => {
@@ -262,7 +283,7 @@ const CheckoutDialog: React.FC = observer(() => {
 							<TextField
 								fullWidth
 								label="Social Security Number (SSN)"
-								value={cartStore.formatSSN(cartStore.checkoutData.ssn)}
+								value={getSSNDisplayValue()}
 								onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
 									// Remove all non-digit characters from input
 									const digitsOnly = e.target.value.replace(/\D/g, '');
@@ -279,6 +300,20 @@ const CheckoutDialog: React.FC = observer(() => {
 										? 'Please enter a valid 9-digit Social Security Number'
 										: 'Required for claim verification'
 								}
+								InputProps={{
+									endAdornment: (
+										<InputAdornment position="end">
+											<IconButton
+												aria-label="toggle SSN visibility"
+												onClick={() => setShowSSN(!showSSN)}
+												edge="end"
+												size="small"
+											>
+												{showSSN ? <VisibilityOff /> : <Visibility />}
+											</IconButton>
+										</InputAdornment>
+									),
+								}}
 								sx={{ '& .MuiOutlinedInput-root': { borderRadius: '3px' } }}
 							/>
 						</Stack>
