@@ -22,8 +22,9 @@ export const useAnalytics = () => {
   const analytics = {
     // Page views
     pageView: (url?: string) => {
-      gtag.pageView(url);
-      metaPixel.pageView(url);
+      const fallbackUrl = window.location.pathname + window.location.search;
+      gtag.pageView(url || fallbackUrl);
+      metaPixel.pageView(url || fallbackUrl);
     },
 
     // Search events
