@@ -262,8 +262,25 @@ const CheckoutDialog: React.FC = observer(() => {
 							<TextField
 								fullWidth
 								label="Social Security Number (SSN)"
-								value={cartStore.checkoutData.ssn}
-								onChange={(e) => cartStore.updateCheckoutData({ ssn: e.target.value })}
+								value={(() => {
+									const ssn = cartStore.checkoutData.ssn;
+									if (!ssn) return '';
+									// Format as XXX-XX-XXXX with asterisks
+									let masked = '';
+									for (let i = 0; i < Math.min(ssn.length, 9); i++) {
+										if (i === 3 || i === 5) masked += '-';
+										masked += '*';
+									}
+									return masked;
+								})()}
+								onChange={(e) => {
+									// Remove any non-digit characters from input
+									const digitsOnly = e.target.value.replace(/\D/g, '');
+									// Limit to 9 digits
+									const limitedDigits = digitsOnly.substring(0, 9);
+									// Store the actual SSN value (digits only) in the store
+									cartStore.updateCheckoutData({ ssn: limitedDigits });
+								}}
 								required
 								placeholder="XXX-XX-XXXX"
 								sx={{ '& .MuiOutlinedInput-root': { borderRadius: '3px' } }}

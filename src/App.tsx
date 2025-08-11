@@ -5,7 +5,7 @@ import MainLayout from './components/MainLayout';
 import PricingPage from './components/PricingPage';
 import ClaimSubmittedPage from './components/ClaimSubmittedPage';
 import DocusignReturnPage from './components/DocusignReturnPage';
-import useGA4 from './hooks/useGA4';
+import useAnalytics from './hooks/useAnalytics';
 
 const theme = createTheme({
   palette: {
@@ -99,10 +99,10 @@ function App() {
   );
 }
 
-// Separate component to use the GA4 hook inside Router context
+// Separate component to use the analytics hook inside Router context
 function AppRoutes() {
-  // Initialize GA4 tracking inside Router context
-  useGA4();
+  // Initialize analytics tracking inside Router context
+  useAnalytics();
 
   return (
     <Routes>

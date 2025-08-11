@@ -20,12 +20,18 @@ import {
   RemoveCircle
 } from '@mui/icons-material';
 import { usePropertyStore, useCartStore } from '../stores/StoreContext';
+import useAnalytics from '../hooks/useAnalytics';
 
 const ResultsSection: React.FC = observer(() => {
   const propertyStore = usePropertyStore();
   const cartStore = useCartStore();
+  const analytics = useAnalytics();
 
   const handleAddToCart = (property: any) => {
+    // Track property selection and add to cart
+    analytics.trackPropertySelection(property.id, property.currentCashBalance);
+    analytics.trackAddToCart(property.id, property.currentCashBalance);
+    
     cartStore.addToCart(property);
   };
 
