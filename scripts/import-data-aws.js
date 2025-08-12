@@ -34,9 +34,12 @@ const __dirname = dirname(__filename);
 const isLocal = process.argv.includes('--local');
 
 // Configuration
-const DATA_URL = 'https://dpupd.sco.ca.gov/04_From_500_To_Beyond.zip';
+const DATA_URLS = [
+  'https://dpupd.sco.ca.gov/04_From_500_To_Beyond.zip',
+  'https://dpupd.sco.ca.gov/03_From_100_To_Below_500.zip'
+];
 const DOWNLOAD_DIR = path.join(__dirname, '../temp');
-const ZIP_FILE = path.join(DOWNLOAD_DIR, 'california_data.zip');
+const ZIP_FILES = DATA_URLS.map((_, index) => path.join(DOWNLOAD_DIR, `california_data_${index + 1}.zip`));
 const BATCH_SIZE = 250; // Process records in smaller batches to avoid conflicts
 
 // AWS PostgreSQL configuration
@@ -139,13 +142,21 @@ async function extractZipFile(zipPath, extractDir) {
     fs.mkdirSync(extractDir, { recursive: true });
   }
   
+  // Create a unique subdirectory for this ZIP file to avoid conflicts
+  const zipFileName = path.basename(zipPath, '.zip');
+  const uniqueExtractDir = path.join(extractDir, zipFileName);
+  
+  if (!fs.existsSync(uniqueExtractDir)) {
+    fs.mkdirSync(uniqueExtractDir, { recursive: true });
+  }
+  
   const zip = new AdmZip(zipPath);
-  zip.extractAllTo(extractDir, true);
+  zip.extractAllTo(uniqueExtractDir, true);
   
-  // Find CSV files recursively
-  const csvFiles = findCSVFilesRecursively(extractDir);
+  // Find CSV files recursively in this specific extraction directory
+  const csvFiles = findCSVFilesRecursively(uniqueExtractDir);
   
-  console.log(`✅ Extracted and found ${csvFiles.length} CSV files`);
+  console.log(`✅ Extracted ${path.basename(zipPath)} and found ${csvFiles.length} CSV files`);
   
   // Log the found files for debugging
   csvFiles.forEach(file => {
@@ -241,7 +252,7 @@ async function createImportRecord(totalRecords) {
       INSERT INTO data_imports (source_url, total_records, import_status)
       VALUES ($1, $2, $3)
       RETURNING id
-    `, [DATA_URL, totalRecords, 'in_progress']);
+    `, [DATA_URLS.join('; '), totalRecords, 'in_progress']);
     
     return result.rows[0].id;
   } finally {
@@ -548,7 +559,10 @@ async function cleanup() {
 
 async function main() {
   console.log('🚀 Starting California Unclaimed Property Data Import (AWS PostgreSQL)');
-  console.log('Source:', DATA_URL);
+  console.log('Sources:');
+  DATA_URLS.forEach((url, index) => {
+    console.log(`  ${index + 1}. ${url}`);
+  });
   
   let importId = null;
   const extractDir = path.join(DOWNLOAD_DIR, 'extracted');
@@ -571,12 +585,24 @@ async function main() {
 
     // Step 3: Download and/or extract if needed
     if (csvFiles.length === 0) {
-      if (fs.existsSync(ZIP_FILE)) {
-        console.log('🔎 Found existing ZIP file. Skipping download.');
-      } else {
-        await downloadFile(DATA_URL, ZIP_FILE);
+      console.log(`📥 Processing ${DATA_URLS.length} ZIP files...`);
+      for (let i = 0; i < DATA_URLS.length; i++) {
+        const dataUrl = DATA_URLS[i];
+        const zipFile = ZIP_FILES[i];
+        
+        console.log(`\n🔄 Processing ZIP file ${i + 1}/${DATA_URLS.length}: ${path.basename(zipFile)}`);
+        
+        if (fs.existsSync(zipFile)) {
+          console.log(`🔎 Found existing ZIP file: ${path.basename(zipFile)}. Skipping download.`);
+        } else {
+          console.log(`📥 Downloading ${path.basename(zipFile)}...`);
+          await downloadFile(dataUrl, zipFile);
+        }
+        const extractedFiles = await extractZipFile(zipFile, extractDir);
+        csvFiles = csvFiles.concat(extractedFiles);
+        console.log(`📊 Total CSV files found so far: ${csvFiles.length}`);
+        console.log(`✅ Completed processing ${path.basename(zipFile)}`);
       }
-      csvFiles = await extractZipFile(ZIP_FILE, extractDir);
     }
     
     if (csvFiles.length === 0) {

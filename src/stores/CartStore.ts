@@ -171,6 +171,30 @@ export class CartStore {
     return emailRegex.test(email.trim());
   }
 
+  // SSN validation helper
+  isValidSSN(ssn: string): boolean {
+    // Remove all non-digit characters
+    const cleanSSN = ssn.replace(/\D/g, '');
+    // Check if it's exactly 9 digits and not all the same digit
+    return cleanSSN.length === 9 && !/^(\d)\1{8}$/.test(cleanSSN);
+  }
+
+  // Format SSN for display (XXX-XX-XXXX)
+  formatSSN(ssn: string): string {
+    const cleanSSN = ssn.replace(/\D/g, '');
+    if (cleanSSN.length === 0) return '';
+    if (cleanSSN.length <= 3) return cleanSSN;
+    if (cleanSSN.length <= 5) return `${cleanSSN.slice(0, 3)}-${cleanSSN.slice(3)}`;
+    return `${cleanSSN.slice(0, 3)}-${cleanSSN.slice(3, 5)}-${cleanSSN.slice(5, 9)}`;
+  }
+
+  // Mask SSN for display (XXX-XX-1234)
+  maskSSN(ssn: string): string {
+    const cleanSSN = ssn.replace(/\D/g, '');
+    if (cleanSSN.length < 9) return this.formatSSN(cleanSSN);
+    return `XXX-XX-${cleanSSN.slice(5, 9)}`;
+  }
+
   get canProceedToNextStep() {
     switch (this.checkoutStep) {
       case 1:
@@ -180,6 +204,8 @@ export class CartStore {
                this.checkoutData.lastName.trim() !== '' &&
                this.checkoutData.email.trim() !== '' &&
                this.isValidEmail(this.checkoutData.email) &&
+               this.checkoutData.ssn.trim() !== '' &&
+               this.isValidSSN(this.checkoutData.ssn) &&
                this.checkoutData.address.street1.trim() !== '' &&
                this.checkoutData.address.city.trim() !== '' &&
                this.checkoutData.address.state.trim() !== '' &&

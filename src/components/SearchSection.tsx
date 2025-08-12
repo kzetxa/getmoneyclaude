@@ -17,9 +17,11 @@ import {
 // import { Search, Tune } from '@mui/icons-material';
 import { Search } from '@mui/icons-material';
 import { usePropertyStore } from '../stores/StoreContext';
+import useAnalytics from '../hooks/useAnalytics';
 
 const SearchSection: React.FC = observer(() => {
   const propertyStore = usePropertyStore();
+  const analytics = useAnalytics();
   const [showFilters,] = useState(false);
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -27,6 +29,10 @@ const SearchSection: React.FC = observer(() => {
   };
 
   const handleSearch = () => {
+    // Track search event with analytics
+    analytics.trackSearch(propertyStore.searchQuery, propertyStore.searchResultsCount);
+    
+    // Perform the search
     propertyStore.performSearch();
   };
 
