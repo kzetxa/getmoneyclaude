@@ -31,7 +31,7 @@ const MainLayout: React.FC = observer(() => {
   // }, [propertyStore.hasSearched, propertyStore.isLoading, propertyStore.searchResults]);
 
   return (
-    <Box sx={{ minHeight: '100vh', width: '100%', backgroundColor: 'rgba(156, 229, 199, 1)' }}>
+    <Box sx={{ minHeight: '100vh', width: '100%', backgroundColor: 'rgba(156, 229, 199, 1)', padding: '0px' }}>
       {/* Header */}
       <Header />
       
@@ -40,7 +40,7 @@ const MainLayout: React.FC = observer(() => {
         sx={{ 
           width: '100%',
           height: '100%',
-          py: { xs: 6, md: 10 },
+          pb: { xs: 6, md: 10 },
           px: { xs: 2, md: 4 },
           textAlign: 'center',
         }}
