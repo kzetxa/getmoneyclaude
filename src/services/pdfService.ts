@@ -22,7 +22,7 @@ export class PDFService {
         claimantData.address.street1,
         claimantData.address.street2,
         `${claimantData.address.city}, ${claimantData.address.state} ${claimantData.address.zipCode}`
-      ].filter(Boolean).join('\n');
+      ].filter(Boolean);
 
       const templateData: { [key: string]: any } = {
         // Claimant Info
