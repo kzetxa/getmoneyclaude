@@ -40,7 +40,7 @@ const MainLayout: React.FC = observer(() => {
         sx={{ 
           width: '100%',
           height: '100%',
-          py: { xs: 6, md: 10 },
+          pb: { xs: 6, md: 10 },
           px: { xs: 2, md: 4 },
           textAlign: 'center',
         }}
