@@ -86,7 +86,7 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
 
 		// --- DocuSign API Client Initialization ---
 		const apiClient = new docusign.ApiClient();
-		apiClient.setOAuthBasePath('account-d.docusign.com');
+		apiClient.setOAuthBasePath('account.docusign.com');
 
 		const integrationKey = process.env.DOCUSIGN_INTEGRATION_KEY;
 		const userId = process.env.DOCUSIGN_USER_ID;
