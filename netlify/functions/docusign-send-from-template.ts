@@ -88,11 +88,13 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
 		const apiClient = new docusign.ApiClient();
 		apiClient.setOAuthBasePath('account.docusign.com');
 
-		const integrationKey = process.env.DOCUSIGN_INTEGRATION_KEY;
-		const userId = process.env.DOCUSIGN_USER_ID;
+		// const integrationKey = process.env.DOCUSIGN_INTEGRATION_KEY;
+		const integrationKey = "d7b01701-1cb3-42bc-b3f3-c08204bb5775";
+		// const userId = process.env.DOCUSIGN_USER_ID;
+		const userId = "f034be3e-ba0b-4b94-913a-fed1cc6e457f";
 		// Netlify's UI can't handle multi-line secrets well. It's recommended to Base64 encode
 		// your private key and store that. Then, decode it in the function.
-		const base64String = process.env.DOCUSIGN_PRIVATE_KEY_BASE64 || "";
+		const base64String = process.env.DOCUSIGN_PRIVATE_KEY_BASE64 as string;
 		const privateKey = Buffer.from(base64String, 'base64').toString('ascii');
 
 		if (!integrationKey || !userId || !privateKey) {
@@ -107,7 +109,7 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
 			integrationKey,
 			userId,
 			consentScopes,
-			Buffer.from(privateKey),
+			privateKey,
 			3600
 		);
 
@@ -115,9 +117,30 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
 		console.log("[DocuSign Auth] Access token obtained.");
 
 		const accountInfo = await apiClient.getUserInfo(accessToken);
-		const accountId = accountInfo.accounts[0].accountId;
 
-		apiClient.setBasePath(`${accountInfo.accounts[0].baseUri}/restapi`);
+		// LOG USER INFO ------------------------------------------------------------
+
+		// Log all accounts tied to this login (you’ll likely see 3–4)
+		// console.log("[DocuSign] Accounts:", accountInfo.accounts.map(a => ({
+		// 	name: a.accountName,
+		// 	accountId: a.accountId,
+		// 	isDefault: a.isDefault,
+		// 	baseUri: a.baseUri
+		// })));
+
+		// Pick the intended prod account explicitly (recommended):
+		// const targetAccountId = process.env.DOCUSIGN_ACCOUNT_ID ??
+		// 	(accountInfo.accounts.find(a => a.isDefault === "true") ?? accountInfo.accounts[0]).accountId;
+
+		// const target = accountInfo.accounts.find(a => a.accountId === targetAccountId)!;
+		// apiClient.setBasePath(`${target.baseUri}/restapi`);
+		// console.log("[DocuSign] Using account:", { name: target.accountName, accountId: target.accountId });
+
+		// END LOG USER INFO ------------------------------------------------------------
+
+		const accountId = accountInfo.accounts[1].accountId;
+
+		apiClient.setBasePath(`${accountInfo.accounts[1].baseUri}/restapi`);
 		apiClient.addDefaultHeader('Authorization', 'Bearer ' + accessToken);
 
 		console.log(`[DocuSign] API Base Path: ${apiClient.basePath}`);
@@ -125,8 +148,8 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
 
 		// --- Envelope Creation ---
 		const envelopeDefinition = new docusign.EnvelopeDefinition();
-		// const templateId = "ba7cfb97-1492-4320-a363-1314ec8a08ef";
-		const templateId = process.env.DOCUSIGN_TEMPLATE_ID || "ca0fcdc7-bbc9-41b7-badf-4267773fb56d";
+		const templateId = process.env.DOCUSIGN_TEMPLATE_ID;
+
 
 		if (!templateId) {
 			throw new Error("DocuSign template ID is not set in environment variables.");
@@ -205,13 +228,16 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
 			headers,
 		};
 
-	} catch (error) {
-		console.error('Error processing request:', error);
-		const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+	} catch (e: any) {
+		const ds = e?.response?.body || e;
+		console.error("DocuSign JWT error:", JSON.stringify(ds, null, 2));
 		return {
 			statusCode: 500,
-			body: JSON.stringify({ error: errorMessage }),
 			headers,
+			body: JSON.stringify({
+				error: ds?.message || ds?.error || "Unknown DocuSign error",
+				details: ds
+			})
 		};
 	}
 };
