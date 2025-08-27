@@ -23,13 +23,13 @@ const PrivacyPolicy: React.FC = () => {
         <IconButton onClick={() => navigate('/')} sx={{ color: 'primary.main' }}>
           <ArrowBack />
         </IconButton>
-        <Typography variant="h4" component="h1" fontWeight="bold" color="primary">
+        <Typography variant="h1" component="h1" color="primary">
           Privacy Policy
         </Typography>
       </Box>
 
       <Paper elevation={2} sx={{ p: 4, borderRadius: 2 }}>
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 3, fontWeight: 500 }}>
           <strong>Effective Date:</strong> July 20, 2025
         </Typography>
 
@@ -39,14 +39,14 @@ const PrivacyPolicy: React.FC = () => {
           use our website and services.
         </Typography>
 
-        <Typography variant="h5" component="h2" sx={{ mt: 4, mb: 2, fontWeight: 600 }}>
+        <Typography variant="h2" component="h2" sx={{ mt: 4, mb: 2 }}>
           1. INFORMATION WE COLLECT
         </Typography>
         <Typography variant="body1" paragraph>
           We may collect the following types of information:
         </Typography>
 
-        <Typography variant="h6" component="h3" sx={{ mt: 3, mb: 1, fontWeight: 600 }}>
+        <Typography variant="h3" component="h3" sx={{ mt: 3, mb: 1 }}>
           Personal Information You Provide
         </Typography>
         <List dense>
@@ -73,7 +73,7 @@ const PrivacyPolicy: React.FC = () => {
           </ListItem>
         </List>
 
-        <Typography variant="h6" component="h3" sx={{ mt: 3, mb: 1, fontWeight: 600 }}>
+        <Typography variant="h3" component="h3" sx={{ mt: 3, mb: 1 }}>
           Information Automatically Collected
         </Typography>
         <List dense>
@@ -93,7 +93,7 @@ const PrivacyPolicy: React.FC = () => {
 
         <Divider sx={{ my: 3 }} />
 
-        <Typography variant="h5" component="h2" sx={{ mt: 4, mb: 2, fontWeight: 600 }}>
+        <Typography variant="h2" component="h2" sx={{ mt: 4, mb: 2 }}>
           2. HOW WE USE YOUR INFORMATION
         </Typography>
         <Typography variant="body1" paragraph>
@@ -122,7 +122,7 @@ const PrivacyPolicy: React.FC = () => {
 
         <Divider sx={{ my: 3 }} />
 
-        <Typography variant="h5" component="h2" sx={{ mt: 4, mb: 2, fontWeight: 600 }}>
+        <Typography variant="h2" component="h2" sx={{ mt: 4, mb: 2 }}>
           3. HOW WE SHARE YOUR INFORMATION
         </Typography>
         <Typography variant="body1" paragraph>
@@ -145,7 +145,7 @@ const PrivacyPolicy: React.FC = () => {
 
         <Divider sx={{ my: 3 }} />
 
-        <Typography variant="h5" component="h2" sx={{ mt: 4, mb: 2, fontWeight: 600 }}>
+        <Typography variant="h2" component="h2" sx={{ mt: 4, mb: 2 }}>
           4. YOUR CHOICES
         </Typography>
         <Typography variant="body1" paragraph>
@@ -166,7 +166,7 @@ const PrivacyPolicy: React.FC = () => {
 
         <Divider sx={{ my: 3 }} />
 
-        <Typography variant="h5" component="h2" sx={{ mt: 4, mb: 2, fontWeight: 600 }}>
+        <Typography variant="h2" component="h2" sx={{ mt: 4, mb: 2 }}>
           5. DATA SECURITY
         </Typography>
         <Typography variant="body1" paragraph>
@@ -178,7 +178,7 @@ const PrivacyPolicy: React.FC = () => {
 
         <Divider sx={{ my: 3 }} />
 
-        <Typography variant="h5" component="h2" sx={{ mt: 4, mb: 2, fontWeight: 600 }}>
+        <Typography variant="h2" component="h2" sx={{ mt: 4, mb: 2 }}>
           6. THIRD-PARTY TOOLS
         </Typography>
         <Typography variant="body1" paragraph>
@@ -188,7 +188,7 @@ const PrivacyPolicy: React.FC = () => {
 
         <Divider sx={{ my: 3 }} />
 
-        <Typography variant="h5" component="h2" sx={{ mt: 4, mb: 2, fontWeight: 600 }}>
+        <Typography variant="h2" component="h2" sx={{ mt: 4, mb: 2 }}>
           7. CHILDREN'S PRIVACY
         </Typography>
         <Typography variant="body1" paragraph>
@@ -197,7 +197,7 @@ const PrivacyPolicy: React.FC = () => {
 
         <Divider sx={{ my: 3 }} />
 
-        <Typography variant="h5" component="h2" sx={{ mt: 4, mb: 2, fontWeight: 600 }}>
+        <Typography variant="h2" component="h2" sx={{ mt: 4, mb: 2 }}>
           8. CHANGES TO THIS POLICY
         </Typography>
         <Typography variant="body1" paragraph>
@@ -206,7 +206,7 @@ const PrivacyPolicy: React.FC = () => {
 
         <Divider sx={{ my: 3 }} />
 
-        <Typography variant="h5" component="h2" sx={{ mt: 4, mb: 2, fontWeight: 600 }}>
+        <Typography variant="h2" component="h2" sx={{ mt: 4, mb: 2 }}>
           9. CONTACT US
         </Typography>
         <Typography variant="body1" paragraph>
