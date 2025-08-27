@@ -33,6 +33,9 @@ const Header: React.FC = observer(() => {
         <BaseHeaderButton to="/privacypolicy" isActive>
           Privacy Policy
         </BaseHeaderButton>
+        <BaseHeaderButton to="/test" isActive>
+          Test Page
+        </BaseHeaderButton>
         
         <Typography variant="h6" component="div" sx={{ flexGrow: 1, fontWeight: 600 }}>
           {/* Logo placeholder */}

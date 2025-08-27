@@ -6,6 +6,7 @@ import PricingPage from './components/PricingPage';
 import ClaimSubmittedPage from './components/ClaimSubmittedPage';
 import DocusignReturnPage from './components/DocusignReturnPage';
 import PrivacyPolicy from './components/PrivacyPolicy';
+import TestPage from './components/TestPage';
 import useAnalytics from './hooks/useAnalytics';
 
 const theme = createTheme({
@@ -110,6 +111,7 @@ function AppRoutes() {
       <Route path="/" element={<MainLayout />} />
       <Route path="/pricing" element={<PricingPage />} />
       <Route path="/privacypolicy" element={<PrivacyPolicy />} />
+      <Route path="/test" element={<TestPage />} />
       <Route path="/thank-you" element={<ClaimSubmittedPage />} />
       <Route path="/docusign-return" element={<DocusignReturnPage />} />
     </Routes>
