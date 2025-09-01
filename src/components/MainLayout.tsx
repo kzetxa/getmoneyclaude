@@ -12,23 +12,23 @@ import ResultsSection from './ResultsSection';
 import SearchSection from './SearchSection';
 import ScrollDownAnimation from './ScrollDownAnimation';
 import StickyCartButton from './StickyCartButton';
+import { usePropertyStore } from '../stores/StoreContext';
 
 const MainLayout: React.FC = observer(() => {
-  // const propertyStore = usePropertyStore();
+  const propertyStore = usePropertyStore();
   const resultsSectionRef = useRef<HTMLDivElement>(null);
 
-  // Scroll to results when search results are loaded
-  // useEffect(() => {
-  //   if (propertyStore.hasSearched && !propertyStore.isLoading && resultsSectionRef.current) {
-  //     // Add a small delay to ensure the results are rendered
-  //     setTimeout(() => {
-  //       resultsSectionRef.current?.scrollIntoView({ 
-  //         behavior: 'smooth',
-  //         block: 'start'
-  //       });
-  //     }, 100);
-  //   }
-  // }, [propertyStore.hasSearched, propertyStore.isLoading, propertyStore.searchResults]);
+  // Scroll to results when search results are available
+  React.useEffect(() => {
+    if (propertyStore.hasResults && resultsSectionRef.current) {
+      setTimeout(() => {
+        resultsSectionRef.current?.scrollIntoView({ 
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }, 800); // Wait for animations to complete
+    }
+  }, [propertyStore.hasResults]);
 
   return (
     <Box sx={{ minHeight: '100vh', width: '100%', backgroundColor: 'rgba(156, 229, 199, 1)', padding: '0px' }}>
@@ -54,6 +54,7 @@ const MainLayout: React.FC = observer(() => {
               fontSize: { xs: '3rem', md: '8rem', lg: '10rem' },
               textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
               fontWeight: 900,
+              animation: propertyStore.hasResults ? 'fadeOut 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards' : 'none',
             }}
           >
             <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
@@ -70,6 +71,7 @@ const MainLayout: React.FC = observer(() => {
               backdropFilter: 'blur(10px)',
               maxWidth: '800px',
               mx: 'auto',
+              animation: propertyStore.hasResults ? 'slideUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards' : 'none',
             }}
           >
             <SearchSection />
@@ -85,6 +87,9 @@ const MainLayout: React.FC = observer(() => {
           background: 'rgb(72, 73, 85)',
           py: { xs: 4, md: 6 },
           px: { xs: 2, md: 4 },
+          opacity: propertyStore.hasResults ? 1 : 0,
+          transform: propertyStore.hasResults ? 'translateY(0)' : 'translateY(50px)',
+          animation: propertyStore.hasResults ? 'fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards' : 'none',
         }}
       >
         <Box sx={{ maxWidth: '1200px', mx: 'auto' }}>
