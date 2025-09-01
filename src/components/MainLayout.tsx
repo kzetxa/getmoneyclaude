@@ -87,8 +87,6 @@ const MainLayout: React.FC = observer(() => {
           <ResultsSection />
         </Box>
       </Box>
-      <Box className={clsx(styles.bottomSection, styles.bottomSectionMd)}>
-      </Box>
 
       <CheckoutDialog />
       <StickyCartButton />
