@@ -23,6 +23,7 @@
     "@types/react-router-dom": "^5.3.3",
     "adm-zip": "^0.5.16",
     "buffer": "^6.0.3",
+    "clsx": "^2.1.1",
     "csv-parse": "^5.6.0",
     "csv-stringify": "^6.6.0",
     "docusign-esign": "^8.2.0",

@@ -14,12 +14,11 @@ import {
   MenuItem,
   Button,
 } from '@mui/material';
-// import { Search, Tune } from '@mui/icons-material';
 import { Search } from '@mui/icons-material';
 import { usePropertyStore } from '../stores/StoreContext';
 import useAnalytics from '../hooks/useAnalytics';
 
-const SearchSection: React.FC = observer(() => {
+const SearchSection: React.FC<{ className?: string }> = observer(({ className }) => {
   const propertyStore = usePropertyStore();
   const analytics = useAnalytics();
   const [showFilters,] = useState(false);
@@ -47,7 +46,7 @@ const SearchSection: React.FC = observer(() => {
   };
 
   return (
-    <Box>
+    <Box className={className}>
       <Stack direction={{ xs: 'column', md: 'row' }} spacing={3} alignItems="stretch">
         <TextField
           fullWidth
