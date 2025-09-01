@@ -30,12 +30,12 @@ const MainLayout: React.FC = observer(() => {
         styles.heroSection, 
         styles.heroSectionMd, 
         styles.transitionAll,
-        propertyStore.searchQuery && styles.heroSectionCollapsed
+        propertyStore.hasSearched && styles.heroSectionCollapsed
       )}>
         <Box className={styles.heroContent}>
           <Box className={clsx(
             styles.logoSection,
-            propertyStore.searchQuery && styles.logoSectionCollapsed
+            propertyStore.hasSearched && styles.logoSectionCollapsed
           )}>
             <Typography 
               variant="h1" 
