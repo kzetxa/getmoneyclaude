@@ -91,7 +91,7 @@ const ResultsSection: React.FC = observer(() => {
           Search Results
         </Typography>
         <Typography variant="h6" sx={{ color: 'rgba(255, 255, 255, 0.8)' }}>
-          Found {propertyStore.searchResultsCount} {propertyStore.searchResultsCount === 1 ? 'result' : 'results'} for "{propertyStore.searchQuery}"
+          Found {propertyStore.searchResultsCount} {propertyStore.searchResultsCount === 1 ? 'result' : 'results'} for "{propertyStore.lastSearchedQuery}"
         </Typography>
       </Box>
 
