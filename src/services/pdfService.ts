@@ -25,6 +25,7 @@ export class PDFService {
       ].filter(Boolean);
 
       // Structure data for Maestro workflow inputs as flat variables
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const inputs: { [key: string]: any } = {
         // Claimant Info
         claimant_name: `${claimantData.firstName} ${claimantData.lastName}`,
@@ -34,11 +35,11 @@ export class PDFService {
         claimant_ssn: claimantData.ssn,
 
         // Investigator Info (using placeholder values as before)
-        investigator_name: 'John Doe Investigator',
-        investigator_email: 'investigator@example.com',
-        investigator_phone: '555-123-4567',
-        investigator_ssn: '999-99-9999',
-        investigator_mailing_address: '123 Investigator St, City, State 12345',
+        investigator_name: 'MoneyMatched, Inc.',
+        investigator_email: 'info@moneymatched.com',
+        investigator_phone: '316-992-1795',
+        investigator_ssn: '39-2527674',
+        investigator_mailing_address: '817 Pier Ave Unit B, Santa Monica, CA 90405',
 
         // Initialize all property-related fields to empty strings
         attachment_checkbox: false,
