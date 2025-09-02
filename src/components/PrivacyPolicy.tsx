@@ -23,12 +23,12 @@ const PrivacyPolicy: React.FC = () => {
         <IconButton onClick={() => navigate('/')} sx={{ color: 'primary.main' }}>
           <ArrowBack />
         </IconButton>
-        <Typography variant="h1" component="h1" color="primary">
+        <Typography variant="h1" component="h1" color="secondary">
           Privacy Policy
         </Typography>
       </Box>
 
-      <Paper elevation={2} sx={{ p: 4, borderRadius: 2 }}>
+      <Paper elevation={0} sx={{ p: 4, borderRadius: 2 }}>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 3, fontWeight: 500 }}>
           <strong>Effective Date:</strong> July 20, 2025
         </Typography>
