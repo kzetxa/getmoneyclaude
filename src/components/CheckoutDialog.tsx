@@ -110,20 +110,36 @@ const CheckoutDialog: React.FC = observer(() => {
 
 			console.log('Sending for signature with data:', formData);
 
-			// Send the agreement for signature and get the redirect URL
-			const redirectUrl = await PDFService.sendForSignature(formData);
+			// Send the agreement for signature via Maestro. Returns instanceUrl for embedding.
+			const response = await PDFService.sendForSignature(formData);
 
-			console.log('Received signing URL:', redirectUrl);
+			console.log('Received Maestro workflow response:', response);
 
-			// Set the URL and open the signature dialog
-			setSigningUrl(redirectUrl);
-			setIsSignatureDialogOpen(true);
+			// Check if Maestro returned an instanceUrl for embedding
+			const instanceUrl = response?.instanceUrl || response?.result?.instanceUrl || null;
+
+			if (instanceUrl) {
+				// Maestro provided an instance URL - show the redirect dialog
+				setSigningUrl(instanceUrl);
+				setIsSignatureDialogOpen(true);
+			} else {
+				// No instance URL provided - show error
+				console.error('No instance URL received from Maestro workflow');
+				alert('Failed to start the signing process. Please try again.');
+			}
 
 		} catch (error) {
 			console.error('Error sending for signature:', error);
 			alert(`Error sending for signature: ${error instanceof Error ? error.message : 'Unknown error'}`);
 		} finally {
 			setIsSubmitting(false);
+		}
+	};
+
+	const handleRedirectToDocuSign = () => {
+		if (signingUrl) {
+			// Open DocuSign in a new window/tab to avoid CSP issues
+			window.open(signingUrl, '_blank', 'noopener,noreferrer');
 		}
 	};
 
@@ -498,11 +514,10 @@ const CheckoutDialog: React.FC = observer(() => {
 		<Dialog
 				open={isSignatureDialogOpen}
 				onClose={() => setIsSignatureDialogOpen(false)}
-				maxWidth="lg"
+				maxWidth="md"
 				fullWidth
 				PaperProps={{
 					sx: { 
-						height: '90vh',
 						borderRadius: '3px',
 						background: 'rgba(255, 255, 255, 0.95)',
 						backdropFilter: 'blur(10px)',
@@ -512,23 +527,40 @@ const CheckoutDialog: React.FC = observer(() => {
 			>
 				<DialogTitle>
 					 <Stack direction="row" justifyContent="space-between" alignItems="center">
-						<Typography variant="h6">Complete Your Signature</Typography>
+						<Typography variant="h6">Complete Your Claim Process</Typography>
 						<IconButton onClick={() => setIsSignatureDialogOpen(false)}>
 							<Close />
 						</IconButton>
 					</Stack>
 				</DialogTitle>
-				<DialogContent sx={{ p: 0, overflow: 'hidden' }}>
-					{signingUrl && (
-						<iframe
-							src={signingUrl}
-							width="100%"
-							height="100%"
-							frameBorder="0"
-							title="DocuSign Embedded Signing"
-							allow="geolocation"
-						/>
-					)}
+				<DialogContent>
+					<Stack spacing={3} alignItems="center" sx={{ py: 2 }}>
+						<CheckCircle color="success" sx={{ fontSize: 64 }} />
+						<Typography variant="h5" align="center">
+							Ready to Sign Your Documents
+						</Typography>
+						<Typography variant="body1" align="center" color="text.secondary">
+							You'll be redirected to DocuSign to complete the signing process securely. 
+							After signing, you'll be redirected back to complete your claim.
+						</Typography>
+						<Button
+							variant="contained"
+							size="large"
+							onClick={handleRedirectToDocuSign}
+							startIcon={<CheckCircle />}
+							sx={{ 
+								borderRadius: '3px',
+								px: 4,
+								py: 1.5,
+								fontSize: '1.1rem'
+							}}
+						>
+							Continue to DocuSign
+						</Button>
+						<Typography variant="body2" color="text.secondary" align="center">
+							This will open in a new tab. Please complete the signing process there.
+						</Typography>
+					</Stack>
 				</DialogContent>
 			</Dialog>
 		</>
