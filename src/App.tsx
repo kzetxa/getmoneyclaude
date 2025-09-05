@@ -111,11 +111,11 @@ function FAQsPage() {
   const faqs = [
     {
       q: "Is this legit? Can’t I do it myself?",
-      a: "Yes. You can always file with your state for free. We make it fast and error‑proof by finding your matches, preparing the official forms, assembling documents, and routing any required online notary."
+      a: "Yes. You can always file with your state for free if you have the time and energy to dedicate to it. We make it fast and error‑proof allowing you to submit a claim in less than 5 minutes. ."
     },
     {
       q: "Who pays you and how much?",
-      a: "There are no upfront fees. If your claim is paid, our investigator fee is capped by law (e.g., up to 10% in California) and only due after you’re paid. If you don’t get paid, you owe nothing."
+      a: "There are no upfront fees. If your claim is paid, California sends us a separate check for 10% of your claim while they send you a check for 90%. If you don’t get paid, you owe nothing."
     },
     {
       q: "What is unclaimed property?",
@@ -127,11 +127,11 @@ function FAQsPage() {
     },
     {
       q: "I don’t want to share SSN online—options?",
-      a: "You can request a secure alternative (e.g., ID verification or online notary session) or choose the DIY state path. Inside the flow, we’ll show the options available for your state."
+      a: "You may give us a call at 1-316-992-1795 and we will submit your claim manually. Since we are registered private investigators we can also pull this SSN for you if you've given us explicit permission and feel more comfortable providing only the last 4 digits of your SSN."
     },
     {
       q: "How long does it take?",
-      a: "Timelines vary by state and claim type. Straightforward claims can finish in weeks; complex or high‑value cases may take longer. We keep you updated at each step."
+      a: "As little as 10 days. The longest we have seen it take for complex claims is 6 months."
     },
     {
       q: "Do you keep my information?",
@@ -139,7 +139,7 @@ function FAQsPage() {
     },
     {
       q: "What happens after I submit?",
-      a: "You’ll get a confirmation and tracking link. We handle the paperwork and notify you if the state needs anything. When approved, the state mails your check."
+      a: "We will pull required paperwork from our private investigator database for you and submit your package to the state so that you can receive payment asap! Once approved, the state mails your check."
     }
   ];
 
