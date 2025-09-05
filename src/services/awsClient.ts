@@ -1,4 +1,4 @@
-import { Pool, PoolClient } from 'pg';
+import { Pool } from 'pg';
 
 // Environment variables - these need to be set in your .env file
 const awsDbHost = import.meta.env.VITE_AWS_DB_HOST || 'moneymatched-db.co548u6eiysd.us-east-1.rds.amazonaws.com';
@@ -128,7 +128,7 @@ export class PropertySearchService {
           return this.fallbackSearch(searchName, minAmount, maxAmount, searchCity, searchPropertyType, limit);
         }
 
-        return result.rows.map(row => ({
+        return result.rows.map((row: any) => ({
           ...row,
           similarity_score: parseFloat(row.similarity_score) || 0
         }));
@@ -348,7 +348,7 @@ export class PropertySearchService {
           'SELECT DISTINCT property_type FROM unclaimed_properties WHERE property_type IS NOT NULL ORDER BY property_type'
         );
         
-        return result.rows.map(row => row.property_type);
+        return result.rows.map((row: any) => row.property_type);
       } finally {
         client.release();
       }

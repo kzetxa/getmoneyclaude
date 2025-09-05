@@ -4,12 +4,10 @@ import {
   Typography,
   Card,
   CardContent,
-  Button,
   Container,
   useTheme,
   useMediaQuery,
 } from '@mui/material';
-import { Link } from 'react-router-dom';
 import Header from './Header';
 
 const PricingPage: React.FC = () => {
