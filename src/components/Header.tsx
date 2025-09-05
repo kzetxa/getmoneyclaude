@@ -30,6 +30,9 @@ const Header: React.FC = observer(() => {
         <BaseHeaderButton to="/pricing" isActive>
           Pricing
         </BaseHeaderButton>
+        <BaseHeaderButton to="/faq" isActive>
+          FAQ
+        </BaseHeaderButton>
         <BaseHeaderButton to="/privacypolicy" isActive>
           Privacy Policy
         </BaseHeaderButton>
