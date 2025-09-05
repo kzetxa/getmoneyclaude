@@ -1,5 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ThemeProvider, createTheme, CssBaseline } from '@mui/material';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { Container, Typography, Box, Accordion, AccordionSummary, AccordionDetails, Link } from '@mui/material';
 import { StoreProvider } from './stores/StoreContext';
 import MainLayout from './components/MainLayout';
 import PricingPage from './components/PricingPage';
@@ -105,6 +107,71 @@ const theme = createTheme({
   },
 });
 
+function FAQsPage() {
+  const faqs = [
+    {
+      q: "Is this legit? Can’t I do it myself?",
+      a: "Yes. You can always file with your state for free. We make it fast and error‑proof by finding your matches, preparing the official forms, assembling documents, and routing any required online notary."
+    },
+    {
+      q: "Who pays you and how much?",
+      a: "There are no upfront fees. If your claim is paid, our investigator fee is capped by law (e.g., up to 10% in California) and only due after you’re paid. If you don’t get paid, you owe nothing."
+    },
+    {
+      q: "What is unclaimed property?",
+      a: "Money owed to you that couldn’t reach you (closed bank accounts, paychecks, refunds, escrow balances, insurance proceeds, dividends, etc.). States hold it until the rightful owner claims it."
+    },
+    {
+      q: "Why do you need my SSN?",
+      a: "Most states require SSN to verify identity and prevent fraud before releasing funds. We request it only when required to complete the official claim and secure it with encryption in transit and at rest."
+    },
+    {
+      q: "I don’t want to share SSN online—options?",
+      a: "You can request a secure alternative (e.g., ID verification or online notary session) or choose the DIY state path. Inside the flow, we’ll show the options available for your state."
+    },
+    {
+      q: "How long does it take?",
+      a: "Timelines vary by state and claim type. Straightforward claims can finish in weeks; complex or high‑value cases may take longer. We keep you updated at each step."
+    },
+    {
+      q: "Do you keep my information?",
+      a: "We keep only what’s needed to process and track your claim and comply with law. You may request deletion after completion, subject to legal retention rules."
+    },
+    {
+      q: "What happens after I submit?",
+      a: "You’ll get a confirmation and tracking link. We handle the paperwork and notify you if the state needs anything. When approved, the state mails your check."
+    }
+  ];
+
+  return (
+    <Container maxWidth="md" sx={{ py: { xs: 6, md: 8 } }}>
+      <Typography variant="h1" gutterBottom sx={{ fontSize: { xs: '2rem', md: '2.5rem' } }}>
+        Frequently Asked Questions
+      </Typography>
+      <Typography variant="body1" sx={{ mb: 4 }}>
+        Quick answers to help you finish your claim with confidence. Prefer to file yourself? We’ll still show you the official DIY path inside the app.
+      </Typography>
+
+      {faqs.map((item, idx) => (
+        <Accordion key={idx} disableGutters sx={{ mb: 2, borderRadius: 2, overflow: 'hidden', '&:before': { display: 'none' } }}>
+          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+            <Typography variant="h5">{item.q}</Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <Typography variant="body1">{item.a}</Typography>
+          </AccordionDetails>
+        </Accordion>
+      ))}
+
+      <Box sx={{ mt: 4 }}>
+        <Typography variant="body2">
+          See our <Link href="/privacypolicy">Privacy & Security Promise</Link>. Questions before you submit? Email <Link href="mailto:support@moneymatched.com">support@moneymatched.com</Link>.
+        </Typography>
+      </Box>
+    </Container>
+  );
+}
+
 function App() {
   return (
     <StoreProvider>
@@ -128,6 +195,7 @@ function AppRoutes() {
       <Route path="/" element={<MainLayout />} />
       <Route path="/pricing" element={<PricingPage />} />
       <Route path="/privacypolicy" element={<PrivacyPolicy />} />
+      <Route path="/faq" element={<FAQsPage />} />
       <Route path="/thank-you" element={<ClaimSubmittedPage />} />
       <Route path="/docusign-return" element={<DocusignReturnPage />} />
     </Routes>
