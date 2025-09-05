@@ -8,6 +8,7 @@ import PricingPage from './components/PricingPage';
 import ClaimSubmittedPage from './components/ClaimSubmittedPage';
 import DocusignReturnPage from './components/DocusignReturnPage';
 import PrivacyPolicy from './components/PrivacyPolicy';
+import Header from './components/Header';
 import useAnalytics from './hooks/useAnalytics';
 
 const theme = createTheme({
@@ -144,12 +145,14 @@ function FAQsPage() {
   ];
 
   return (
-    <Container maxWidth="md" sx={{ py: { xs: 6, md: 8 } }}>
-      <Typography variant="h1" gutterBottom sx={{ fontSize: { xs: '2rem', md: '2.5rem' } }}>
-        Frequently Asked Questions
-      </Typography>
+    <>
+      <Header />
+      <Container maxWidth="md" sx={{ py: { xs: 6, md: 8 } }}>
+        <Typography variant="h1" gutterBottom sx={{ fontSize: { xs: '2rem', md: '2.5rem' } }}>
+          Frequently Asked Questions
+        </Typography>
       <Typography variant="body1" sx={{ mb: 4 }}>
-        Quick answers to help you finish your claim with confidence. Prefer to file yourself? We’ll still show you the official DIY path inside the app.
+        Feel free to shoot us a text or give us a call (you'll speak with a real human on our team) if you have more questions not listed here. 316-992-1795.
       </Typography>
 
       {faqs.map((item, idx) => (
@@ -163,12 +166,13 @@ function FAQsPage() {
         </Accordion>
       ))}
 
-      <Box sx={{ mt: 4 }}>
-        <Typography variant="body2">
-          See our <Link href="/privacypolicy">Privacy & Security Promise</Link>. Questions before you submit? Email <Link href="mailto:support@moneymatched.com">support@moneymatched.com</Link>.
-        </Typography>
-      </Box>
-    </Container>
+        <Box sx={{ mt: 4 }}>
+          <Typography variant="body2">
+            See our <Link href="/privacypolicy">Privacy & Security Promise</Link>. Questions before you submit? Email <Link href="mailto:support@moneymatched.com">support@moneymatched.com</Link>.
+          </Typography>
+        </Box>
+      </Container>
+    </>
   );
 }
 
