@@ -1,148 +1,128 @@
-import type { Handler, HandlerEvent } from "@netlify/functions";
+import type { Handler, HandlerEvent, HandlerContext } from "@netlify/functions";
 import docusign from 'docusign-esign';
 
-// Note: This function requires the 'docusign-esign' package.
-// If you haven't already, install it by running: npm install docusign-esign
-
-interface RequestData {
-  workflowId: string;
-  claimantName: string;
-  claimantEmail: string;
-  // eNotary specific fields
-  claimantPhone?: string;
-  claimantAddress?: string;
-  claimantSSN?: string;
-  // Property information
-  propertyIds?: string[];
-  claimAmounts?: string[];
-  // Notary information (if you want to specify a particular notary)
-  notaryEmail?: string;
-  notaryName?: string;
-  // You can add any other input variables your Maestro workflow needs
-  // For example:
-  // propertyId: string;
-  // claimAmount: number;
+interface TriggerRequestBody {
+	instanceName?: string;
+	inputs?: Record<string, unknown>;
 }
 
-const responseHeaders = {
-  "Content-Type": "application/json"
+const handler: Handler = async (event: HandlerEvent, _context: HandlerContext) => {
+	if (event.httpMethod !== 'POST') {
+		return {
+			statusCode: 405,
+			body: JSON.stringify({ error: 'Method Not Allowed' }),
+			headers: {
+				'Allow': 'POST',
+				'Content-Type': 'application/json'
+			}
+		};
+	}
+
+	const headers = {
+		"Content-Type": "application/json",
+	};
+
+	try {
+		if (!event.body) {
+			throw new Error('Request body is missing.');
+		}
+
+		const { instanceName, inputs }: TriggerRequestBody = JSON.parse(event.body);
+
+		// Get workflow ID from environment variables
+		const workflowId = process.env.DOCUSIGN_MAESTRO_WORKFLOW_ID;
+		if (!workflowId) {
+			throw new Error('DOCUSIGN_MAESTRO_WORKFLOW_ID environment variable is not set.');
+		}
+
+		// DocuSign JWT auth (reuse pattern from existing function)
+		const apiClient = new docusign.ApiClient();
+		apiClient.setOAuthBasePath('account.docusign.com');
+
+		const integrationKey = process.env.DOCUSIGN_INTEGRATION_KEY || "";
+		const userId = process.env.DOCUSIGN_USER_ID || "";
+		const base64String = process.env.DOCUSIGN_PRIVATE_KEY_BASE64 as string;
+		const privateKey = Buffer.from(base64String || '', 'base64').toString('ascii');
+
+		if (!integrationKey || !userId || !privateKey) {
+			throw new Error('DocuSign environment variables are not set.');
+		}
+
+		const consentScopes = ["signature", "impersonation", "aow_manage"];
+		const tokenResponse = await apiClient.requestJWTUserToken(
+			integrationKey,
+			userId,
+			consentScopes,
+			privateKey,
+			3600
+		);
+
+		const accessToken = tokenResponse.body.access_token;
+		const userInfo = await apiClient.getUserInfo(accessToken);
+
+		// const targetAccount = userInfo.accounts.find(a => !a.isDefault) || userInfo.accounts[0];
+		const targetAccount = userInfo.accounts[1];
+		const accountId = targetAccount.accountId;
+
+		// Step B: Trigger the workflow using the direct trigger endpoint
+		const triggerPayload = {
+			instance_name: instanceName || "KYC basic",
+			trigger_inputs: inputs
+		};
+
+		console.log('[Maestro] Triggering workflow with payload:', triggerPayload);
+
+		// Use the direct trigger endpoint as per the API documentation
+		const triggerWorkflowUrl = `https://api.docusign.com/v1/accounts/${accountId}/workflows/${workflowId}/actions/trigger`;
+
+		const triggerWorkflowRes = await fetch(triggerWorkflowUrl, {
+			method: "POST",
+			headers: {
+				Authorization: `Bearer ${accessToken}`,
+				"Content-Type": "application/json"
+			},
+			body: JSON.stringify(triggerPayload)
+		});
+
+		if (!triggerWorkflowRes.ok) {
+			const errorText = await triggerWorkflowRes.text();
+			console.error('[Maestro] Failed to trigger workflow:', triggerWorkflowRes.status, errorText);
+			return {
+				statusCode: triggerWorkflowRes.status,
+				headers,
+				body: JSON.stringify({ 
+					error: 'Failed to trigger Maestro workflow', 
+					status: triggerWorkflowRes.status, 
+					details: errorText 
+				})
+			};
+		}
+
+		const workflowInstance = await triggerWorkflowRes.json();
+		console.log('[Maestro] Workflow triggered successfully:', workflowInstance);
+
+		// Step C: Return workflow_instance_url to frontend for embedding
+		return {
+			statusCode: 200,
+			headers,
+			body: JSON.stringify({ 
+				success: true, 
+				instanceUrl: workflowInstance.instance_url,
+				instanceId: workflowInstance.id,
+				details: workflowInstance
+			})
+		};
+	} catch (e: any) {
+		const ds = e?.response?.body || e;
+		console.error('DocuSign Maestro error:', JSON.stringify(ds, null, 2));
+		return {
+			statusCode: 500,
+			headers,
+			body: JSON.stringify({ error: ds?.message || ds?.error || 'Unknown error', details: ds })
+		};
+	}
 };
 
-const handler: Handler = async (event: HandlerEvent) => {
-  if (event.httpMethod !== 'POST') {
-    return {
-      statusCode: 405,
-      body: JSON.stringify({ error: 'Method Not Allowed' }),
-      headers: { ...responseHeaders, 'Allow': 'POST' }
-    };
-  }
+export { handler };
 
-  try {
-    if (!event.body) {
-      throw new Error("Request body is missing.");
-    }
-    
-    const requestData: RequestData = JSON.parse(event.body);
-    const { workflowId, claimantName, claimantEmail } = requestData;
 
-    if (!workflowId || !claimantName || !claimantEmail) {
-      throw new Error("Missing workflowId, claimantName, or claimantEmail in the request body.");
-    }
-
-    console.log(`[Maestro Start] Triggering eNotary workflow: ${workflowId} for ${claimantEmail}`);
-
-    // --- DocuSign API Client Initialization (same as other functions) ---
-    const apiClient = new docusign.ApiClient();
-    apiClient.setOAuthBasePath('account-d.docusign.com');
-
-    const integrationKey = process.env.DOCUSIGN_INTEGRATION_KEY;
-    const userId = process.env.DOCUSIGN_USER_ID;
-    const privateKey = Buffer.from(process.env.DOCUSIGN_PRIVATE_KEY_BASE64!, 'base64').toString('ascii');
-    
-    if (!integrationKey || !userId || !privateKey) {
-        console.error("Missing DocuSign environment variables.");
-        throw new Error("DocuSign environment variables are not set up on Netlify.");
-    }
-
-    const consentScopes = ["signature", "impersonation"];
-    
-    const tokenResponse = await apiClient.requestJWTUserToken(
-        integrationKey,
-        userId,
-        consentScopes,
-        Buffer.from(privateKey),
-        3600
-    );
-    
-    const accessToken = tokenResponse.body.access_token;
-    const accountInfo = await apiClient.getUserInfo(accessToken);
-    const accountId = accountInfo.accounts[0].accountId;
-    
-    apiClient.setBasePath(`${accountInfo.accounts[0].baseUri}/restapi`);
-    apiClient.addDefaultHeader('Authorization', 'Bearer ' + accessToken);
-    
-    // --- Trigger Maestro Workflow ---
-    const workflowsApi = new docusign.WorkflowsApi(apiClient);
-    
-    // Prepare input parameters for the Maestro workflow
-    const inputParameters: { [key: string]: any } = {
-      // Basic claimant information
-      ClaimantName: claimantName,
-      ClaimantEmail: claimantEmail,
-      ClaimantPhone: requestData.claimantPhone || '',
-      ClaimantAddress: requestData.claimantAddress || '',
-      ClaimantSSN: requestData.claimantSSN || '',
-      
-      // Property information (if provided)
-      PropertyIds: requestData.propertyIds ? requestData.propertyIds.join(',') : '',
-      ClaimAmounts: requestData.claimAmounts ? requestData.claimAmounts.join(',') : '',
-      
-      // Notary information (if specified)
-      NotaryEmail: requestData.notaryEmail || '',
-      NotaryName: requestData.notaryName || '',
-      
-      // Timestamp for audit trail
-      RequestTimestamp: new Date().toISOString(),
-      
-      // Pass any other data from the request body to the workflow
-      ...requestData
-    };
-
-    const workflowInstance = {
-      // The workflowId for the Maestro workflow you created in DocuSign
-      workflowId: workflowId,
-      instanceName: `eNotary Unclaimed Property Claim for ${claimantName}`,
-      // These key-value pairs are the inputs for your workflow
-      inputParameters: inputParameters
-    };
-
-    console.log("[DocuSign] Creating eNotary Maestro workflow instance...");
-    console.log("[DocuSign] Input parameters:", inputParameters);
-    
-    const result = await workflowsApi.createWorkflowInstance(accountId, {
-      triggerWorkflowInstanceRequest: workflowInstance
-    });
-    console.log(`[DocuSign] eNotary workflow instance created successfully. Instance ID: ${result.instanceId}`);
-
-    return {
-      statusCode: 200,
-      body: JSON.stringify({ 
-        success: true, 
-        instanceId: result.instanceId,
-        message: "eNotary workflow triggered successfully. The notary will be notified and can begin the notarization process."
-      }),
-      headers: responseHeaders,
-    };
-
-  } catch (error) {
-    console.error('Error processing eNotary request:', error);
-    const errorMessage = error.response?.data?.message || error.message;
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: errorMessage }),
-      headers: responseHeaders,
-    };
-  }
-};
-
-export { handler }; 

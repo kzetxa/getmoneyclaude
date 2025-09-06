@@ -4,44 +4,16 @@ import {
   Typography,
   Card,
   CardContent,
-  Button,
   Container,
   useTheme,
   useMediaQuery,
 } from '@mui/material';
-import { Link } from 'react-router-dom';
 import Header from './Header';
 
 const PricingPage: React.FC = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
-  const pricingPlans = [
-    {
-      title: 'Do It Yourself',
-      price: 'FREE',
-      description: 'DO IT YOURSELF',
-      buttonText: "You'll Be Back",
-      popular: false,
-      note: '',
-    },
-    {
-      title: 'Let Us Do It',
-      price: '10%',
-      description: 'ONLY PAY IF YOU WIN!',
-      buttonText: 'Go!',
-      popular: true,
-      note: '',
-    },
-    {
-      title: 'Let Us Help You Do It',
-      price: '$50',
-      description: 'SELF-GUIDED CLAIM GUIDE',
-      buttonText: 'Get Started',
-      popular: false,
-      note: 'Time consuming but necessary if you plan on doing it by yourself.',
-    },
-  ];
 
   return (
     <Box sx={{ 
@@ -63,34 +35,79 @@ const PricingPage: React.FC = () => {
             fontFamily: 'sans-serif',
           }}
         >
-          CHOOSE YOUR PLAN
+          Process
         </Typography>
 
-        {/* Pricing Cards */}
-        <Box sx={{ 
-          display: 'flex', 
-          flexDirection: isMobile ? 'column' : 'row',
-          gap: { xs: 3, md: 4 },
-          justifyContent: 'center',
-          alignItems: 'stretch',
-        }}>
-          {pricingPlans.map((plan, index) => (
-            <Card
-              key={index}
-              sx={{
-                flex: 1,
-                maxWidth: isMobile ? '100%' : '350px',
-                backgroundColor: '#f5f5f5',
-                borderRadius: '8px',
-                position: 'relative',
-                border: 'none',
-                overflow: 'visible',
-              }}
-            >
-              {/* Popular Badge */}
-              {plan.popular && (
-                <Box
-                  sx={{
+        {/* Process Steps */}
+        <Box sx={{ mb: { xs: 6, md: 8 } }}>
+          <Typography 
+            variant="h2" 
+            align="center"
+            sx={{ 
+              fontSize: { xs: '1.5rem', md: '2rem' },
+              fontWeight: 600,
+              color: 'rgb(72, 73, 85)',
+              mb: { xs: 4, md: 6 },
+              fontFamily: 'sans-serif',
+            }}
+          >
+            How It Works
+          </Typography>
+          
+          <Box sx={{ 
+            display: 'flex', 
+            flexDirection: isMobile ? 'column' : 'row',
+            gap: { xs: 3, md: 4 },
+            justifyContent: 'center',
+            alignItems: 'stretch',
+          }}>
+            {[
+              {
+                step: '1',
+                title: 'Search',
+                description: 'User searches name',
+                icon: '🔍'
+              },
+              {
+                step: '2', 
+                title: 'Add',
+                description: 'User adds properties to cart and "checks out"',
+                icon: '🛒'
+              },
+              {
+                step: '3',
+                title: 'Sign', 
+                description: 'User signs investigator agreement and claim form',
+                icon: '✍️'
+              },
+              {
+                step: '4',
+                title: 'Notarize',
+                description: 'User is routed into video room with online notary (if over $10k)',
+                icon: '📹'
+              },
+              {
+                step: '5',
+                title: 'Submit',
+                description: 'User receives a check in as little as 10 days',
+                icon: '💰'
+              }
+            ].map((item, index) => (
+              <Card
+                key={index}
+                sx={{
+                  flex: 1,
+                  maxWidth: isMobile ? '100%' : '350px',
+                  backgroundColor: '#f5f5f5',
+                  borderRadius: '8px',
+                  position: 'relative',
+                  border: 'none',
+                  overflow: 'visible',
+                }}
+              >
+                <CardContent sx={{ p: { xs: 3, md: 4 } }}>
+                  {/* Step Number Badge */}
+                  <Box sx={{ 
                     position: 'absolute',
                     top: -15,
                     right: 15,
@@ -102,110 +119,64 @@ const PricingPage: React.FC = () => {
                     px: 2,
                     py: 0.5,
                     fontSize: '0.8rem',
-                  }}
-                >
-                  Popular
-                </Box>
-              )}
+                  }}>
+                    Step {item.step}
+                  </Box>
 
-              <CardContent sx={{ p: { xs: 3, md: 4 } }}>
-                {/* Header */}
-                <Box sx={{ 
-                  backgroundColor: 'rgba(156, 229, 199, 1)',
-                  p: 2,
-                  mb: 3,
-                  borderRadius: '4px',
-                }}>
-                  <Typography
-                    variant="h6"
-                    sx={{
-                      fontWeight: 600,
-                      color: 'rgb(72, 73, 85)',
-                      textDecoration: 'underline',
-                      textAlign: 'center',
-                    }}
-                  >
-                    {plan.title}
-                  </Typography>
-                </Box>
-
-                {/* Price */}
-                <Typography
-                  variant="h2"
-                  align="center"
-                  sx={{
-                    fontSize: { xs: '2.5rem', md: '3rem' },
-                    fontWeight: 300,
-                    color: 'rgb(72, 73, 85)',
-                    mb: 1,
-                    fontFamily: '"Inter", sans-serif',
-                  }}
-                >
-                  {plan.price}
-                </Typography>
-
-                {/* Description */}
-                <Typography
-                  variant="h6"
-                  align="center"
-                  sx={{
-                    fontWeight: 700,
-                    color: 'rgb(72, 73, 85)',
-                    mb: 3,
-                    fontSize: { xs: '0.9rem', md: '1rem' },
-                  }}
-                >
-                  {plan.description}
-                </Typography>
-
-
-
-                {/* Button or Information Box */}
-                {plan.note ? (
+                  {/* Header */}
                   <Box sx={{ 
-                    border: '1px solid #000',
-                    borderRadius: '8px',
+                    backgroundColor: 'rgba(156, 229, 199, 1)',
                     p: 2,
-                    backgroundColor: 'white',
+                    mb: 3,
+                    borderRadius: '4px',
                   }}>
                     <Typography
-                      variant="body2"
+                      variant="h6"
                       sx={{
+                        fontWeight: 600,
                         color: 'rgb(72, 73, 85)',
+                        textDecoration: 'underline',
                         textAlign: 'center',
-                        fontSize: { xs: '0.8rem', md: '0.9rem' },
                       }}
                     >
-                      {plan.note}
+                      {item.title}
                     </Typography>
                   </Box>
-                ) : (
-                  <Button
-                    variant="outlined"
-                    fullWidth
-                    component={Link}
-                    to="/"
+
+                  {/* Icon */}
+                  <Typography
+                    variant="h2"
+                    align="center"
                     sx={{
-                      border: '1px solid #000',
-                      borderRadius: '8px',
+                      fontSize: { xs: '2.5rem', md: '3rem' },
+                      fontWeight: 300,
                       color: 'rgb(72, 73, 85)',
-                      fontWeight: 600,
-                      py: 1.5,
-                      textTransform: 'none',
-                      fontSize: { xs: '0.9rem', md: '1rem' },
-                      '&:hover': {
-                        border: '2px solid #000',
-                        backgroundColor: 'rgba(0, 0, 0, 0.05)',
-                      },
+                      mb: 1,
+                      fontFamily: '"Inter", sans-serif',
                     }}
                   >
-                    {plan.buttonText}
-                  </Button>
-                )}
-              </CardContent>
-            </Card>
-          ))}
+                    {item.icon}
+                  </Typography>
+
+                  {/* Description */}
+                  <Typography
+                    variant="h6"
+                    align="center"
+                    sx={{
+                      fontWeight: 700,
+                      color: 'rgb(72, 73, 85)',
+                      mb: 3,
+                      fontSize: { xs: '0.9rem', md: '1rem' },
+                    }}
+                  >
+                    {item.description}
+                  </Typography>
+                </CardContent>
+              </Card>
+            ))}
+          </Box>
         </Box>
+
       </Container>
     </Box>
   );

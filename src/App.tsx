@@ -1,11 +1,14 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ThemeProvider, createTheme, CssBaseline } from '@mui/material';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { Container, Typography, Box, Accordion, AccordionSummary, AccordionDetails, Link } from '@mui/material';
 import { StoreProvider } from './stores/StoreContext';
 import MainLayout from './components/MainLayout';
 import PricingPage from './components/PricingPage';
 import ClaimSubmittedPage from './components/ClaimSubmittedPage';
 import DocusignReturnPage from './components/DocusignReturnPage';
 import PrivacyPolicy from './components/PrivacyPolicy';
+import Header from './components/Header';
 import useAnalytics from './hooks/useAnalytics';
 
 const theme = createTheme({
@@ -105,6 +108,74 @@ const theme = createTheme({
   },
 });
 
+function FAQsPage() {
+  const faqs = [
+    {
+      q: "Is this legit? Can’t I do it myself?",
+      a: "Yes. You can always file with your state for free if you have the time and energy to dedicate to it. We make it fast and error‑proof allowing you to submit a claim in less than 5 minutes. ."
+    },
+    {
+      q: "Who pays you and how much?",
+      a: "There are no upfront fees. If your claim is paid, California sends us a separate check for 10% of your claim while they send you a check for 90%. If you don’t get paid, you owe nothing."
+    },
+    {
+      q: "What is unclaimed property?",
+      a: "Money owed to you that couldn’t reach you (closed bank accounts, paychecks, refunds, escrow balances, insurance proceeds, dividends, etc.). States hold it until the rightful owner claims it."
+    },
+    {
+      q: "Why do you need my SSN?",
+      a: "Most states require SSN to verify identity and prevent fraud before releasing funds. We request it only when required to complete the official claim and secure it with encryption in transit and at rest."
+    },
+    {
+      q: "I don’t want to share SSN online—options?",
+      a: "You may give us a call at 1-316-992-1795 and we will submit your claim manually. Since we are registered private investigators we can also pull this SSN for you if you've given us explicit permission and feel more comfortable providing only the last 4 digits of your SSN."
+    },
+    {
+      q: "How long does it take?",
+      a: "As little as 10 days. The longest we have seen it take for complex claims is 6 months."
+    },
+    {
+      q: "Do you keep my information?",
+      a: "We keep only what’s needed to process and track your claim and comply with law. You may request deletion after completion, subject to legal retention rules."
+    },
+    {
+      q: "What happens after I submit?",
+      a: "We will pull required paperwork from our private investigator database for you and submit your package to the state so that you can receive payment asap! Once approved, the state mails your check."
+    }
+  ];
+
+  return (
+    <>
+      <Header />
+      <Container maxWidth="md" sx={{ py: { xs: 6, md: 8 } }}>
+        <Typography variant="h1" gutterBottom sx={{ fontSize: { xs: '2rem', md: '2.5rem' } }}>
+          Frequently Asked Questions
+        </Typography>
+      <Typography variant="body1" sx={{ mb: 4 }}>
+        Feel free to shoot us a text or give us a call (you'll speak with a real human on our team) if you have more questions not listed here. 316-992-1795.
+      </Typography>
+
+      {faqs.map((item, idx) => (
+        <Accordion key={idx} disableGutters sx={{ mb: 2, borderRadius: 2, overflow: 'hidden', '&:before': { display: 'none' } }}>
+          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+            <Typography variant="h5">{item.q}</Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <Typography variant="body1">{item.a}</Typography>
+          </AccordionDetails>
+        </Accordion>
+      ))}
+
+        <Box sx={{ mt: 4 }}>
+          <Typography variant="body2">
+            See our <Link href="/privacypolicy">Privacy & Security Promise</Link>. Questions before you submit? Email <Link href="mailto:support@moneymatched.com">support@moneymatched.com</Link>.
+          </Typography>
+        </Box>
+      </Container>
+    </>
+  );
+}
+
 function App() {
   return (
     <StoreProvider>
@@ -128,6 +199,7 @@ function AppRoutes() {
       <Route path="/" element={<MainLayout />} />
       <Route path="/pricing" element={<PricingPage />} />
       <Route path="/privacypolicy" element={<PrivacyPolicy />} />
+      <Route path="/faq" element={<FAQsPage />} />
       <Route path="/thank-you" element={<ClaimSubmittedPage />} />
       <Route path="/docusign-return" element={<DocusignReturnPage />} />
     </Routes>

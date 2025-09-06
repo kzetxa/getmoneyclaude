@@ -15,7 +15,7 @@ export interface FormData {
 export class PDFService {
   static async sendForSignature(formData: FormData): Promise<any> {
     try {
-      console.log('Preparing data for DocuSign template...');
+      console.log('Preparing data for DocuSign Maestro workflow...');
       const { properties, claimantData } = formData;
 
       const claimantAddress = [
@@ -24,138 +24,86 @@ export class PDFService {
         `${claimantData.address.city}, ${claimantData.address.state} ${claimantData.address.zipCode}`
       ].filter(Boolean);
 
-      const templateData: { [key: string]: any } = {
+      // Structure data for Maestro workflow inputs as flat variables
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const inputs: { [key: string]: any } = {
         // Claimant Info
         claimant_name: `${claimantData.firstName} ${claimantData.lastName}`,
         claimant_email: claimantData.email,
         claimant_phone: claimantData.phone || '',
-        claimant_mailing_address: claimantAddress,
+        claimant_mailing_address: claimantAddress.join(', '),
         claimant_ssn: claimantData.ssn,
 
-        // TODO: Replace with secure configuration (e.g., environment variables)
-        investigator_name: 'John Doe Investigator',
-        investigator_email: 'investigator@example.com',
-        investigator_phone: '555-123-4567',
-        investigator_ssn: '999-99-9999',
+        // Investigator Info (using placeholder values as before)
+        investigator_name: 'MoneyMatched, Inc.',
+        investigator_email: 'info@moneymatched.com',
+        investigator_phone: '316-992-1795',
+        investigator_ssn: '39-2527674',
+        investigator_mailing_address: '817 Pier Ave Unit B, Santa Monica, CA 90405',
 
-        // This would be driven by UI if needed, defaulting to false
+        // Initialize all property-related fields to empty strings
         attachment_checkbox: false,
       };
 
       // Initialize all property-related fields to empty strings
       const propFields = [
-          'account_type', 'amount', 'owner_address', 'owner_name',
-          'property_id', 'reported_by', 'securities'
+        'account_type', 'amount', 'owner_address', 'owner_name',
+        'property_id', 'reported_by', 'securities'
       ];
       const suffixes = ['_primary', '_1', '_2', '_3', '_4'];
       suffixes.forEach(suffix => {
-          propFields.forEach(field => {
-              templateData[`${field}${suffix}`] = '';
-          });
+        propFields.forEach(field => {
+          inputs[`${field}${suffix}`] = '';
+        });
       });
 
       // Populate data for up to 5 properties
       properties.slice(0, 5).forEach((property, index) => {
-          const suffix = suffixes[index];
-          const ownerAddress = [
-              property.ownerStreet1,
-              property.ownerStreet2,
-              property.ownerCity,
-              property.ownerState,
-              property.ownerZip
-          ].filter(Boolean).join(', ');
-          
-          templateData[`owner_name${suffix}`] = property.ownerName;
-          templateData[`owner_address${suffix}`] = ownerAddress;
-          templateData[`property_id${suffix}`] = property.id?.split('_')?.[0] || '';
-        templateData[`amount${suffix}`] = `$${property.currentCashBalance.toLocaleString()}`;
-          templateData[`account_type${suffix}`] = property.propertyType;
-          templateData[`reported_by${suffix}`] = property.holderName;
-          templateData[`securities${suffix}`] = (property as any).shares || '';
+        const suffix = suffixes[index];
+        const ownerAddress = [
+          property.ownerStreet1,
+          property.ownerStreet2,
+          property.ownerCity,
+          property.ownerState,
+          property.ownerZip
+        ].filter(Boolean).join(', ');
+        
+        inputs[`owner_name${suffix}`] = property.ownerName;
+        inputs[`owner_address${suffix}`] = ownerAddress;
+        inputs[`property_id${suffix}`] = property.id?.split('_')?.[0] || '';
+        inputs[`amount${suffix}`] = `$${property.currentCashBalance.toLocaleString()}`;
+        inputs[`account_type${suffix}`] = property.propertyType;
+        inputs[`reported_by${suffix}`] = property.holderName;
+        inputs[`securities${suffix}`] = (property as any).shares || '';
       });
 
-      console.log('Invoking Netlify function to send from template...', { templateData });
-      
-      const response = await fetch('/.netlify/functions/docusign-send-from-template', {
+      const payload = {
+        instanceName: `Claim - ${claimantData.lastName}, ${claimantData.firstName}`,
+        inputs
+      };
+
+      console.log('Invoking Netlify function to trigger Maestro workflow...', payload);
+
+      const response = await fetch('/.netlify/functions/docusign-trigger-maestro', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ templateData }),
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(`Failed to send for signature: ${errorData.error || response.statusText}`);
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(`Failed to trigger Maestro workflow: ${errorData.error || response.statusText}`);
       }
-      
-      const data = await response.json();
-      console.log('Successfully sent for signature via Netlify function.', data);
 
-      if (!data.redirectUrl) {
-        throw new Error('Did not receive a redirect URL for signing.');
-      }
-      
-      return data.redirectUrl;
+      const data = await response.json();
+      console.log('Successfully triggered Maestro workflow via Netlify function.', data);
+
+      // Return the response data - Maestro may or may not provide a redirectUrl
+      return data;
 
     } catch (error) {
       console.error('Error in sendForSignature:', error);
       throw new Error(`Failed to send for signature: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    }
-  }
-
-  static async sendForENotary(formData: FormData): Promise<any> {
-    try {
-      console.log('Preparing data for eNotary workflow...');
-      const { properties, claimantData } = formData;
-
-      const claimantAddress = [
-        claimantData.address.street1,
-        claimantData.address.street2,
-        `${claimantData.address.city}, ${claimantData.address.state} ${claimantData.address.zipCode}`
-      ].filter(Boolean).join('\n');
-
-      // Prepare property data for the workflow
-      const propertyIds = properties.map(p => p.id);
-      const claimAmounts = properties.map(p => `$${p.currentCashBalance.toLocaleString()}`);
-
-      const workflowData = {
-        workflowId: process.env.REACT_APP_DOCUSIGN_ENOTARY_WORKFLOW_ID || 'your-enotary-workflow-id',
-        claimantName: `${claimantData.firstName} ${claimantData.lastName}`,
-        claimantEmail: claimantData.email,
-        claimantPhone: claimantData.phone || '',
-        claimantAddress: claimantAddress,
-        claimantSSN: claimantData.ssn,
-        propertyIds: propertyIds,
-        claimAmounts: claimAmounts,
-        // You can optionally specify a particular notary
-        // notaryEmail: 'specific-notary@example.com',
-        // notaryName: 'Specific Notary Name'
-      };
-
-      console.log('Invoking Netlify function to trigger eNotary workflow...', { workflowData });
-      
-      const response = await fetch('/.netlify/functions/docusign-trigger-maestro', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(workflowData),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(`Failed to trigger eNotary workflow: ${errorData.error || response.statusText}`);
-      }
-      
-      const data = await response.json();
-      console.log('Successfully triggered eNotary workflow via Netlify function.', data);
-
-      return {
-        success: true,
-        instanceId: data.instanceId,
-        message: data.message || 'eNotary workflow initiated successfully'
-      };
-
-    } catch (error) {
-      console.error('Error in sendForENotary:', error);
-      throw new Error(`Failed to trigger eNotary workflow: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 } 
